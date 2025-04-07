@@ -60,6 +60,7 @@ def get_formats():
     image_converter = ConverterFactory.get_converter("image/jpeg")
     audio_converter = ConverterFactory.get_converter("audio/mpeg")
     video_converter = ConverterFactory.get_converter("video/mp4")
+    document_converter = ConverterFactory.get_converter("application/pdf")  # Add document converter
     
     formats = {
         "image": {
@@ -74,7 +75,10 @@ def get_formats():
             "input": video_converter.get_supported_input_formats() if video_converter else [],
             "output": video_converter.get_supported_output_formats() if video_converter else []
         },
-        "document": {"input": [], "output": []}  # Da implementare in FASE 4
+        "document": {
+            "input": document_converter.get_supported_input_formats() if document_converter else [],
+            "output": document_converter.get_supported_output_formats() if document_converter else []
+        }
     }
     
     return jsonify(formats)
