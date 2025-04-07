@@ -1,0 +1,301 @@
+<div id="progress-container" class="d-none mt-4">
+    <h4 class="mb-3 text-center">Converting Your Files</h4>
+    
+    <!-- Visual flow representation -->
+    <div class="flow-visualization mb-4">
+        <div class="flow-step active">
+            <div class="flow-icon">
+                <i class="fas fa-file-import"></i>
+            </div>
+            <div class="flow-label">Preparing</div>
+        </div>
+        <div class="flow-connector">
+            <div class="flow-line"></div>
+        </div>
+        <div class="flow-step">
+            <div class="flow-icon">
+                <i class="fas fa-sync-alt fa-spin"></i>
+            </div>
+            <div class="flow-label">Converting</div>
+        </div>
+        <div class="flow-connector">
+            <div class="flow-line"></div>
+        </div>
+        <div class="flow-step">
+            <div class="flow-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="flow-label">Completed</div>
+        </div>
+    </div>
+    
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+    </div>
+    <p class="text-center mt-2" id="progress-text">Processing files...</p>
+    
+    <!-- File processing indicators -->
+    <div class="file-progress-list mt-4">
+        <!-- Will be populated by JavaScript -->
+    </div>
+</div>
+
+<style>
+    .flow-visualization {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .flow-step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .flow-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--neutral-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        font-size: 1.2rem;
+        color: var(--neutral-500);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .flow-step.active .flow-icon,
+    .flow-step.completed .flow-icon {
+        background: linear-gradient(135deg, var(--primary-gradient-start), var(--primary-gradient-end));
+        color: white;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+    }
+    
+    .flow-step.completed .flow-icon {
+        background: linear-gradient(135deg, var(--success-color), #2bb583);
+    }
+    
+    .flow-label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--neutral-500);
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .flow-step.active .flow-label,
+    .flow-step.completed .flow-label {
+        color: var(--neutral-900);
+        font-weight: 600;
+    }
+    
+    .flow-connector {
+        flex-grow: 1;
+        padding: 0 10px;
+        max-width: 80px;
+    }
+    
+    .flow-line {
+        height: 3px;
+        background: var(--neutral-200);
+        position: relative;
+    }
+    
+    .flow-progress {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(to right, var(--primary-gradient-start), var(--primary-gradient-end));
+        transition: width 0.5s ease-out;
+    }
+    
+    .file-progress-list {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    
+    .file-progress-item {
+        padding: 8px 12px;
+        background: white;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-normal) ease;
+    }
+    
+    .file-progress-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .file-progress-item .file-icon {
+        width: 30px;
+        margin-right: 10px;
+        color: var(--primary-color);
+    }
+    
+    .file-progress-item .file-name {
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.9rem;
+    }
+    
+    .file-progress-item .file-status {
+        margin-left: 10px;
+        font-weight: 500;
+        font-size: 0.8rem;
+    }
+    
+    .file-progress-item .status-pending {
+        color: var(--neutral-500);
+    }
+    
+    .file-progress-item .status-processing {
+        color: var(--primary-color);
+    }
+    
+    .file-progress-item .status-completed {
+        color: var(--success-color);
+    }
+    
+    .file-progress-item .status-failed {
+        color: var(--error-color);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add functionality to update the flow visualization based on progress
+        function updateFlowVisualization(progress) {
+            const steps = document.querySelectorAll('.flow-step');
+            const connectors = document.querySelectorAll('.flow-connector .flow-line');
+            
+            if (progress <= 0) {
+                // Initial state - only first step active
+                steps[0].classList.add('active');
+                steps[1].classList.remove('active', 'completed');
+                steps[2].classList.remove('active', 'completed');
+                
+                // No progress on connectors
+                if (!connectors[0].querySelector('.flow-progress')) {
+                    connectors[0].innerHTML = '<div class="flow-progress"></div>';
+                }
+                connectors[0].querySelector('.flow-progress').style.width = '0%';
+                
+                if (!connectors[1].querySelector('.flow-progress')) {
+                    connectors[1].innerHTML = '<div class="flow-progress"></div>';
+                }
+                connectors[1].querySelector('.flow-progress').style.width = '0%';
+            }
+            else if (progress < 100) {
+                // Converting - first step completed, second active
+                steps[0].classList.add('completed');
+                steps[0].classList.remove('active');
+                steps[1].classList.add('active');
+                steps[2].classList.remove('active', 'completed');
+                
+                // First connector complete, second progressing
+                connectors[0].querySelector('.flow-progress').style.width = '100%';
+                connectors[1].querySelector('.flow-progress').style.width = `${progress}%`;
+            }
+            else {
+                // All done
+                steps[0].classList.add('completed');
+                steps[0].classList.remove('active');
+                steps[1].classList.add('completed');
+                steps[1].classList.remove('active');
+                steps[2].classList.add('completed');
+                
+                // All connectors complete
+                connectors[0].querySelector('.flow-progress').style.width = '100%';
+                connectors[1].querySelector('.flow-progress').style.width = '100%';
+            }
+        }
+        
+        // Expose this function to the global scope so other scripts can use it
+        window.updateFlowVisualization = updateFlowVisualization;
+        
+        // Function to add a file to the progress list
+        window.addFileToProgressList = function(file) {
+            const fileProgressList = document.querySelector('.file-progress-list');
+            const extension = file.name.split('.').pop().toLowerCase();
+            
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-progress-item';
+            fileItem.dataset.filename = file.name;
+            
+            fileItem.innerHTML = `
+                <div class="file-icon">
+                    <i class="${getFileTypeIcon(extension)}"></i>
+                </div>
+                <div class="file-name">${file.name}</div>
+                <div class="file-status status-pending">
+                    <span>Pending</span>
+                </div>
+            `;
+            
+            fileProgressList.appendChild(fileItem);
+        };
+        
+        // Function to update a file's status in the progress list
+        window.updateFileProgressStatus = function(filename, status) {
+            const fileItems = document.querySelectorAll('.file-progress-item');
+            
+            for (const item of fileItems) {
+                if (item.dataset.filename === filename) {
+                    const statusElem = item.querySelector('.file-status');
+                    
+                    statusElem.className = 'file-status';
+                    
+                    switch(status) {
+                        case 'pending':
+                            statusElem.classList.add('status-pending');
+                            statusElem.innerHTML = '<span>Pending</span>';
+                            break;
+                        case 'processing':
+                            statusElem.classList.add('status-processing');
+                            statusElem.innerHTML = '<span>Processing</span> <i class="fas fa-spinner fa-spin"></i>';
+                            break;
+                        case 'completed':
+                            statusElem.classList.add('status-completed');
+                            statusElem.innerHTML = '<span>Completed</span> <i class="fas fa-check"></i>';
+                            break;
+                        case 'failed':
+                            statusElem.classList.add('status-failed');
+                            statusElem.innerHTML = '<span>Failed</span> <i class="fas fa-times"></i>';
+                            break;
+                    }
+                    
+                    break;
+                }
+            }
+        };
+        
+        function getFileTypeIcon(extension) {
+            const iconMap = {
+                'jpg': 'fas fa-file-image',
+                'jpeg': 'fas fa-file-image',
+                'png': 'fas fa-file-image',
+                'gif': 'fas fa-file-image',
+                'mp3': 'fas fa-file-audio',
+                'wav': 'fas fa-file-audio',
+                'mp4': 'fas fa-file-video',
+                'mov': 'fas fa-file-video',
+                'pdf': 'fas fa-file-pdf',
+                'doc': 'fas fa-file-word',
+                'docx': 'fas fa-file-word',
+            };
+            
+            return iconMap[extension] || 'fas fa-file';
+        }
+    });
+</script>

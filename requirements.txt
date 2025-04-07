@@ -1,0 +1,20 @@
+flask
+pillow
+pillow-heif
+tqdm
+python-multipart
+werkzeug
+# pyheif  # Commentato per evitare la compilazione
+python-magic-bin  # Supporto Win/Mac per magic
+python-magic  # Per il rilevamento MIME
+ffmpeg-python  # Per audio/video - wrapper API di FFmpeg
+moviepy  # Wrapper di ffmpeg più facile da usare
+pydub  # Per elaborazione audio
+PyPDF2>=3.0.0  # Per documenti PDF
+python-docx  # Per documenti Word
+docx2pdf  # Per conversione Word a PDF
+markdown  # Per conversione Markdown
+html2text  # Per conversione da HTML a text/markdown
+beautifulsoup4  # Per parsing HTML
+openpyxl  # Per documenti Excel
+python-pptx  # Per presentazioni PowerPoint

@@ -1,0 +1,112 @@
+<!-- Document options -->
+<div id="document-options" class="card card-body d-none">
+    <h5 class="card-title">Document Options</h5>
+    
+    <!-- Metadata preservation option -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="preserve-metadata-switch" checked>
+            <label class="form-check-label" for="preserve-metadata-switch">Preserve metadata</label>
+        </div>
+        <small class="text-muted d-block mt-1">
+            Attempt to preserve document metadata like author, title, creation date, etc.
+        </small>
+    </div>
+    
+    <!-- Paper size options -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="paper-size-switch">
+            <label class="form-check-label" for="paper-size-switch">Set page size</label>
+        </div>
+        <div class="ps-4 mt-2 d-none" id="paper-size-options">
+            <select class="form-select" id="paper-size-select">
+                <option value="A4" selected>A4</option>
+                <option value="A3">A3</option>
+                <option value="A5">A5</option>
+                <option value="Letter">US Letter</option>
+                <option value="Legal">US Legal</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Margins -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="margins-switch">
+            <label class="form-check-label" for="margins-switch">Set page margins</label>
+        </div>
+        <div class="ps-4 mt-2 d-none" id="margins-options">
+            <div class="row g-2">
+                <div class="col-6">
+                    <label for="margin-top" class="form-label">Top (mm)</label>
+                    <input type="number" class="form-control" id="margin-top" value="20" min="0">
+                </div>
+                <div class="col-6">
+                    <label for="margin-right" class="form-label">Right (mm)</label>
+                    <input type="number" class="form-control" id="margin-right" value="20" min="0">
+                </div>
+                <div class="col-6">
+                    <label for="margin-bottom" class="form-label">Bottom (mm)</label>
+                    <input type="number" class="form-control" id="margin-bottom" value="20" min="0">
+                </div>
+                <div class="col-6">
+                    <label for="margin-left" class="form-label">Left (mm)</label>
+                    <input type="number" class="form-control" id="margin-left" value="20" min="0">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Font options -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="font-switch">
+            <label class="form-check-label" for="font-switch">Set font</label>
+        </div>
+        <div class="ps-4 mt-2 d-none" id="font-options">
+            <div class="row g-2">
+                <div class="col-8">
+                    <select class="form-select" id="font-select">
+                        <option value="Arial" selected>Arial</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Calibri">Calibri</option>
+                        <option value="Georgia">Georgia</option>
+                    </select>
+                </div>
+                <div class="col-4">
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="font-size" value="11" min="8" max="72">
+                        <span class="input-group-text">pt</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Table of Contents -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="toc-switch">
+            <label class="form-check-label" for="toc-switch">Generate Table of Contents</label>
+        </div>
+    </div>
+    
+    <!-- PDF Password -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="encrypted-pdf-switch">
+            <label class="form-check-label" for="encrypted-pdf-switch">Source PDF is password protected</label>
+        </div>
+        <div class="ps-4 mt-2 d-none" id="pdf-password-options">
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" class="form-control" id="pdf-password" placeholder="Enter PDF password">
+                <button class="btn btn-outline-secondary" type="button" id="show-password-btn">
+                    <i class="fas fa-eye"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

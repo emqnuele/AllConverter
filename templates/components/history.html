@@ -1,0 +1,343 @@
+<div id="history-container" class="d-none mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold position-relative d-inline-block">
+            Conversion History
+            <div class="position-absolute" style="height: 4px; width: 70%; background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end)); bottom: -8px; left: 0; border-radius: 2px;"></div>
+        </h3>
+        
+        <div class="actions">
+            <button id="refresh-history-btn" class="btn btn-outline-primary">
+                <i class="fas fa-sync-alt me-2"></i> Refresh
+            </button>
+        </div>
+    </div>
+    
+    <!-- Empty state message -->
+    <div id="history-empty" class="text-center py-5 d-none">
+        <div class="empty-illustration mb-4">
+            <i class="fas fa-history fa-5x text-muted"></i>
+        </div>
+        <h4 class="fw-bold text-muted">No Conversion History</h4>
+        <p class="text-muted">Convert some files to see your history here</p>
+        <button id="start-converting-btn" class="btn btn-primary mt-3">
+            <i class="fas fa-exchange-alt me-2"></i> Start Converting
+        </button>
+    </div>
+    
+    <!-- Batch actions -->
+    <div id="batch-actions" class="d-none mb-3 p-3 bg-light rounded-3 shadow-sm">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="me-3"><span id="selected-count">0</span> items selected</span>
+                <button id="select-all-btn" class="btn btn-sm btn-outline-secondary me-2">
+                    <i class="fas fa-check-square me-1"></i> Select All
+                </button>
+                <button id="deselect-all-btn" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-square me-1"></i> Deselect All
+                </button>
+            </div>
+            <div>
+                <button id="download-selected-btn" class="btn btn-sm btn-primary me-2">
+                    <i class="fas fa-download me-1"></i> Download Selected
+                </button>
+                <button id="delete-selected-btn" class="btn btn-sm btn-danger">
+                    <i class="fas fa-trash me-1"></i> Delete Selected
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- History list with sessions -->
+    <div id="history-list" class="history-sessions">
+        <!-- Sessions will be populated here via JavaScript -->
+        <div class="history-loading text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading history...</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .history-sessions {
+        perspective: 2000px;
+    }
+    
+    .history-session {
+        border-radius: 16px;
+        background: white;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+        transform-style: preserve-3d;
+        box-shadow: var(--shadow-md);
+        transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 1px solid var(--neutral-200);
+    }
+    
+    .history-session:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+    }
+    
+    .session-header {
+        cursor: pointer;
+        background: linear-gradient(to right, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
+        backdrop-filter: blur(5px);
+        padding: 1.25rem 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: background-color 0.3s ease;
+        border-bottom: 1px solid transparent;
+    }
+    
+    .session-header.active {
+        border-bottom-color: var(--neutral-200);
+    }
+    
+    .session-header:hover {
+        background: linear-gradient(to right, rgba(79, 70, 229, 0.05), rgba(255,255,255,0.9));
+    }
+    
+    .session-date {
+        font-weight: 600;
+        color: var(--neutral-800);
+        display: flex;
+        align-items: center;
+    }
+    
+    .session-date i {
+        color: var(--primary-color);
+        margin-right: 10px;
+    }
+    
+    .session-stats {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        color: var(--neutral-600);
+        font-size: 0.9rem;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .stat-item i {
+        margin-right: 6px;
+        font-size: 0.95rem;
+    }
+    
+    .chevron-icon {
+        transition: transform 0.3s ease;
+    }
+    
+    .chevron-icon.rotated {
+        transform: rotate(180deg);
+    }
+    
+    .session-body {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+    }
+    
+    .session-body.expanded {
+        max-height: 2000px;
+        transition: max-height 1s ease-in-out;
+    }
+    
+    .session-files {
+        padding: 1rem 1.5rem 1.5rem;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 0.5rem;
+        transition: all 0.2s ease;
+        background-color: var(--neutral-50);
+        border: 1px solid var(--neutral-100);
+    }
+    
+    .file-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .file-item:hover {
+        background-color: var(--neutral-100);
+        transform: translateX(4px);
+    }
+    
+    .file-checkbox {
+        margin-right: 1rem;
+    }
+    
+    .file-checkbox input {
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-right: 1rem;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.05));
+    }
+    
+    .file-icon i {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+    }
+    
+    .file-info {
+        flex-grow: 1;
+    }
+    
+    .file-name {
+        font-weight: 500;
+        margin-bottom: 0.1rem;
+        color: var(--neutral-800);
+    }
+    
+    .file-meta {
+        font-size: 0.8rem;
+        color: var(--neutral-500);
+    }
+    
+    .file-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .btn-file-action {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: var(--neutral-600);
+        background: transparent;
+        border: 1px solid var(--neutral-300);
+        transition: all 0.2s ease;
+    }
+    
+    .btn-file-action:hover {
+        background: white;
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+    
+    .btn-file-action.delete:hover {
+        color: var(--error-color);
+        border-color: var(--error-color);
+    }
+    
+    .category-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-right: 0.5rem;
+    }
+    
+    .category-badge.image {
+        background-color: rgba(79, 70, 229, 0.1);
+        color: rgb(79, 70, 229);
+    }
+    
+    .category-badge.audio {
+        background-color: rgba(236, 72, 153, 0.1);
+        color: rgb(236, 72, 153);
+    }
+    
+    .category-badge.video {
+        background-color: rgba(139, 92, 246, 0.1);
+        color: rgb(139, 92, 246);
+    }
+    
+    .category-badge.document {
+        background-color: rgba(16, 185, 129, 0.1);
+        color: rgb(16, 185, 129);
+    }
+    
+    .empty-illustration {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .empty-illustration i {
+        position: relative;
+        z-index: 1;
+        color: var(--neutral-400);
+    }
+    
+    .empty-illustration::after {
+        content: '';
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: radial-gradient(circle, var(--neutral-200) 0%, transparent 70%);
+        opacity: 0.6;
+        filter: blur(10px);
+    }
+    
+    .confirmation-dialog {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -60%) scale(0.95);
+        width: 90%;
+        max-width: 400px;
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-xl);
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .confirmation-dialog.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    
+    .dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .dialog-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+</style>

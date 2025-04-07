@@ -1,0 +1,71 @@
+<div class="custom-tabs mb-4">
+    <div class="nav nav-tabs nav-fill" id="main-tabs">
+        <button class="nav-link active" data-view="converter">
+            <i class="fas fa-exchange-alt me-2"></i> Converter
+        </button>
+        <button class="nav-link" data-view="history">
+            <i class="fas fa-history me-2"></i> History
+        </button>
+    </div>
+</div>
+
+<style>
+    .custom-tabs {
+        position: relative;
+    }
+    
+    .nav-tabs {
+        border: none;
+        background: var(--neutral-100);
+        border-radius: 12px;
+        padding: 6px;
+        box-shadow: var(--shadow-inner);
+    }
+    
+    .nav-link {
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.8rem 1rem;
+        margin: 0 4px;
+        color: var(--neutral-600);
+        font-weight: 500;
+        transition: all var(--transition-normal) cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .nav-link:hover {
+        color: var(--primary-color);
+    }
+    
+    .nav-link.active {
+        background: white !important;
+        color: var(--primary-color) !important;
+        box-shadow: var(--shadow-md);
+        font-weight: 600;
+        position: relative;
+    }
+    
+    .nav-link.active::before {
+        content: '';
+        position: absolute;
+        bottom: -3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 30%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end));
+        border-radius: 3px;
+        opacity: 0.7;
+    }
+    
+    /* Custom indicator that moves */
+    .tab-indicator {
+        position: absolute;
+        height: calc(100% - 12px);
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: var(--shadow-md);
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        top: 6px;
+        z-index: 1;
+    }
+</style>

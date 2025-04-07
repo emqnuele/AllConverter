@@ -1,0 +1,104 @@
+<!-- Image options -->
+<div id="image-options" class="card card-body">
+    <h5 class="card-title">Image Options</h5>
+    
+    <!-- Quality slider -->
+    <div class="mb-3">
+        <label for="quality-slider" class="form-label">Quality: <span id="quality-value">95</span>%</label>
+        <input type="range" class="form-range" id="quality-slider" min="1" max="100" value="95">
+    </div>
+    
+    <!-- Resize options -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="resize-switch">
+            <label class="form-check-label" for="resize-switch">Resize Image</label>
+        </div>
+        <div id="resize-options" class="mt-2 ps-4 d-none">
+            <div class="mb-2">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="resizeType" id="resize-percentage" value="percentage" checked>
+                    <label class="form-check-label" for="resize-percentage">By percentage</label>
+                </div>
+                <div class="input-group input-group-sm mt-1">
+                    <input type="number" class="form-control" id="resize-percentage-input" value="100" min="1" max="100">
+                    <span class="input-group-text">%</span>
+                </div>
+            </div>
+            <div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="resizeType" id="resize-dimensions" value="dimensions">
+                    <label class="form-check-label" for="resize-dimensions">Custom dimensions</label>
+                </div>
+                <div class="input-group input-group-sm mt-1">
+                    <input type="number" class="form-control" id="resize-width" placeholder="Width" disabled>
+                    <span class="input-group-text">×</span>
+                    <input type="number" class="form-control" id="resize-height" placeholder="Height" disabled>
+                    <span class="input-group-text">px</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Rotate options -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="rotate-switch">
+            <label class="form-check-label" for="rotate-switch">Rotate Image</label>
+        </div>
+        <div id="rotate-options" class="mt-2 ps-4 d-none">
+            <div class="row">
+                <div class="col-8">
+                    <input type="range" class="form-range" id="rotate-slider" min="0" max="359" value="90">
+                </div>
+                <div class="col-4">
+                    <div class="input-group input-group-sm">
+                        <input type="number" class="form-control" id="rotate-angle" value="90" min="0" max="359">
+                        <span class="input-group-text">°</span>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-2 btn-group btn-group-sm">
+                <button class="btn btn-outline-secondary" id="rotate-90-left">↺ 90°</button>
+                <button class="btn btn-outline-secondary" id="rotate-90-right">↻ 90°</button>
+                <button class="btn btn-outline-secondary" id="rotate-180">↻ 180°</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Flip options -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="flip-switch">
+            <label class="form-check-label" for="flip-switch">Flip Image</label>
+        </div>
+        <div id="flip-options" class="mt-2 ps-4 d-none">
+            <div class="btn-group btn-group-sm">
+                <input type="radio" class="btn-check" name="flip-type" id="flip-horizontal" value="horizontal" checked autocomplete="off">
+                <label class="btn btn-outline-secondary" for="flip-horizontal">↔ Horizontal</label>
+                
+                <input type="radio" class="btn-check" name="flip-type" id="flip-vertical" value="vertical" autocomplete="off">
+                <label class="btn btn-outline-secondary" for="flip-vertical">↕ Vertical</label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter options -->
+    <div class="mb-3">
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="filter-switch">
+            <label class="form-check-label" for="filter-switch">Apply Filter</label>
+        </div>
+        <div id="filter-options" class="mt-2 ps-4 d-none">
+            <select class="form-select form-select-sm" id="filter-type">
+                <option value="blur">Blur</option>
+                <option value="sharpen">Sharpen</option>
+                <option value="contour">Contour</option>
+                <option value="detail">Detail enhance</option>
+                <option value="edge_enhance">Edge enhance</option>
+                <option value="emboss">Emboss</option>
+                <option value="grayscale">Grayscale</option>
+            </select>
+        </div>
+    </div>
+</div>

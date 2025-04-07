@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block head_extras %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/format-selector.css') }}">
+{% endblock %}
+
+{% block content %}
+    <!-- Navigation tabs -->
+    {% include 'components/navigation.html' %}
+    
+    <!-- Converter View -->
+    <div id="converter-container">
+        <div class="mb-4">
+            <!-- New visual format selectors -->
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <span class="format-title">What are you converting?</span>
+                    <div id="file-type-container" class="format-selector"></div>
+                    
+                    <!-- Keep original select for compatibility but hide it -->
+                    <select class="form-select d-none" id="file-type-select">
+                        <option value="image" selected>Images</option>
+                        <option value="audio">Audio</option>
+                        <option value="video">Video</option>
+                        <option value="document">Documents</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-12 mb-4">
+                    <div class="format-container">
+                        <span class="format-title">Convert to format</span>
+                        <div id="target-format-container" class="format-selector"></div>
+                        
+                        <!-- Keep original select for compatibility but hide it -->
+                        <select class="form-select d-none" id="target-format-select">
+                            <!-- Target formats will be populated via JavaScript -->
+                        </select>
+                        
+                        <!-- Scroll indicators -->
+                        <div class="scroll-indicator scroll-left">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="scroll-indicator scroll-right">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Advanced options (collapsible) -->
+            <div class="mt-3">
+                <button class="btn btn-outline-secondary w-100 options-button" type="button" id="advanced-options-btn" data-bs-toggle="collapse" data-bs-target="#advanced-options">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-sliders-h me-2"></i> 
+                        <span>Advanced Options</span>
+                        <i class="fas fa-chevron-down ms-2 toggle-icon"></i>
+                    </div>
+                </button>
+                
+                <div class="collapse mt-3" id="advanced-options">
+                    {% include 'components/image_options.html' %}
+                    {% include 'components/audio_options.html' %}
+                    {% include 'components/video_options.html' %}
+                    {% include 'components/document_options.html' %}
+                </div>
+            </div>
+        </div>
+        
+        {% include 'components/file_upload.html' %}
+        {% include 'components/file_list.html' %}
+        {% include 'components/progress.html' %}
+        {% include 'components/results.html' %}
+    </div>
+    
+    <!-- History View -->
+    {% include 'components/history.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/format-selector.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-animations.js') }}"></script>
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation for options button
+        const optionsButton = document.getElementById('advanced-options-btn');
+        const toggleIcon = optionsButton.querySelector('.toggle-icon');
+        
+        optionsButton.addEventListener('click', function() {
+            toggleIcon.style.transition = 'transform 0.3s ease';
+            
+            if (this.getAttribute('aria-expanded') === 'true') {
+                toggleIcon.style.transform = 'rotate(180deg)';
+            } else {
+                toggleIcon.style.transform = 'rotate(0deg)';
+            }
+        });
+        
+        // Scroll buttons for format carousel
+        const scrollLeft = document.querySelector('.scroll-left');
+        const scrollRight = document.querySelector('.scroll-right');
+        
+        if (scrollLeft && scrollRight) {
+            scrollLeft.addEventListener('click', function() {
+                const carousel = document.querySelector('.format-carousel');
+                if (carousel) {
+                    carousel.scrollBy({ left: -200, behavior: 'smooth' });
+                }
+            });
+            
+            scrollRight.addEventListener('click', function() {
+                const carousel = document.querySelector('.format-carousel');
+                if (carousel) {
+                    carousel.scrollBy({ left: 200, behavior: 'smooth' });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
