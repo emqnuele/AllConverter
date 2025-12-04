@@ -8,6 +8,7 @@ from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_from_directory
 from tqdm import tqdm
+import static_ffmpeg  # Ensure ffmpeg is available
 
 # Importa i moduli custom
 from utils.file_detection import FileTypeDetector

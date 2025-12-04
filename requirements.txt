@@ -18,3 +18,5 @@ html2text  # Per conversione da HTML a text/markdown
 beautifulsoup4  # Per parsing HTML
 openpyxl  # Per documenti Excel
 python-pptx  # Per presentazioni PowerPoint
+gunicorn  # Production server
+static-ffmpeg  # FFmpeg binary for Render
