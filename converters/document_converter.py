@@ -7,7 +7,10 @@ from pathlib import Path
 # Librerie per documenti
 from PyPDF2 import PdfReader, PdfWriter, PdfMerger
 import docx
-from docx2pdf import convert as docx_to_pdf
+try:
+    from docx2pdf import convert as docx_to_pdf
+except ImportError:
+    docx_to_pdf = None
 from markdown import markdown
 import html2text
 from bs4 import BeautifulSoup

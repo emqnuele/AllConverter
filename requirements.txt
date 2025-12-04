@@ -5,7 +5,7 @@ tqdm
 python-multipart
 werkzeug
 # pyheif  # Commentato per evitare la compilazione
-python-magic-bin  # Supporto Win/Mac per magic
+python-magic-bin; sys_platform == 'win32'  # Supporto Win/Mac per magic
 python-magic  # Per il rilevamento MIME
 ffmpeg-python  # Per audio/video - wrapper API di FFmpeg
 moviepy  # Wrapper di ffmpeg più facile da usare
