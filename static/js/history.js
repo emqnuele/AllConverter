@@ -140,6 +140,7 @@ class HistoryManager {
         // Format date
         const sessionDate = new Date(session.timestamp * 1000);
         const formattedDate = sessionDate.toLocaleString();
+        const formattedTime = sessionDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
         // Count file categories
         const categories = session.categories || {};
@@ -152,12 +153,12 @@ class HistoryManager {
         header.className = 'session-header d-flex justify-content-between align-items-center';
         header.innerHTML = `
             <div class="d-flex align-items-center">
-                <div class="form-check me-3">
+                <div class="form-check me-3 desktop-only">
                     <input class="form-check-input history-checkbox session-checkbox" type="checkbox" value="${session.session_id}">
                 </div>
                 <div class="session-date">
                     <i class="fas fa-calendar-alt"></i>
-                    ${formattedDate}
+                    <span class="desktop-only">${formattedDate}</span><span class="mobile-only">${formattedTime}</span>
                 </div>
             </div>
             <div class="session-stats">
@@ -165,7 +166,7 @@ class HistoryManager {
                     <i class="fas fa-file"></i>
                     ${session.file_count} file${session.file_count !== 1 ? 's' : ''}
                 </span>
-                <div class="categories">
+                <div class="categories desktop-only">
                     ${categoryBadges}
                 </div>
                 <i class="fas fa-chevron-down chevron-icon"></i>

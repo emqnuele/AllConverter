@@ -515,8 +515,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="nuf__meta text-muted small">Ready to convert</div>
                     </div>
                 </div>
-                <div style="width: 15%" class="text-center fw-bold text-secondary small">${extension.toUpperCase()}</div>
-                <div style="width: 15%" class="text-center text-muted small">${formatFileSize(file.size)}</div>
+                <div style="width: 15%" class="text-center fw-bold text-secondary small desktop-only">${extension.toUpperCase()}</div>
+                <div style="width: 15%" class="text-center text-muted small desktop-only">${formatFileSize(file.size)}</div>
                 <div style="width: 25%" class="d-flex justify-content-end">
                     <button class="nuf__remove-btn" data-index="${index}" title="Remove file">
                         <i class="fas fa-times"></i>
@@ -691,7 +691,7 @@ document.addEventListener('DOMContentLoaded', function () {
             row.innerHTML = `
                 <div class="flex-grow-1 d-flex align-items-center justify-content-between">
                     <!-- Original File -->
-                    <div class="ncr__file-info" style="width: 35%">
+                    <div class="ncr__file-info desktop-only" style="width: 35%">
                         <div class="ncr__icon ncr__icon--original">
                             <i class="${getFileTypeIcon(originalExtension)}"></i>
                         </div>
@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
 
                     <!-- Arrow -->
-                    <div class="ncr__arrow">
+                    <div class="ncr__arrow desktop-only">
                         <i class="fas fa-arrow-right"></i>
                     </div>
 
@@ -719,7 +719,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <!-- Actions -->
                     <div class="d-flex align-items-center justify-content-end gap-3" style="width: 20%">
-                        <span class="ncr__status-badge ${statusClass}">
+                        <span class="ncr__status-badge ${statusClass} desktop-only">
                             <i class="fas fa-${statusIcon}"></i> ${statusText}
                         </span>
                         

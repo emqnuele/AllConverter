@@ -458,20 +458,6 @@ h6 {
 .particle {
   position: absolute;
   border-radius: 50%;
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-
-.upload-icon-container {
-  position: relative;
-  display: inline-block;
-  transform-style: preserve-3d;
-}
-
-.upload-glow {
-  position: absolute;
-  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100px;
@@ -497,26 +483,6 @@ h6 {
   }
 }
 
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .container {
-    padding: 1rem;
-  }
-
-  .card-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .upload-area {
-    padding: 2rem 1rem;
-  }
-
-  .btn {
-    padding: 0.5rem 1rem;
-  }
-}
-
 /* Theme transitions */
 .theme-transition {
   transition: background-color 0.5s ease,
@@ -525,18 +491,184 @@ h6 {
     box-shadow 0.5s ease;
 }
 
-/* =========================================
-   REBUILT SECTIONS (Unique Classes)
-   ========================================= */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 0.5rem;
+  }
 
-/* --- Uploaded Files Section (nuf__) --- */
-.nuf__wrapper {
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
+  .card-header {
+    padding: 1.5rem 1rem;
+  }
 
-.nuf__list {
-  max-height: 400px;
-  overflow-y: auto;
+  .card-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .card-body {
+    padding: 1rem !important;
+  }
+
+  .upload-area {
+    padding: 1.5rem 1rem;
+  }
+
+  .upload-icon-container i {
+    font-size: 3rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* File List Mobile Styles */
+  .nuf__header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .nuf__header h4 {
+    font-size: 1.1rem;
+    flex-grow: 1;
+  }
+
+  #nuf-clear-btn {
+    width: auto !important;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .nuf__wrapper {
+    padding: 1rem !important;
+  }
+
+  .nuf__item {
+    position: relative;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    padding: 1rem;
+    padding-right: 3rem;
+    /* Space for remove button */
+  }
+
+  /* Icon + Name */
+  .nuf__item>div:nth-child(1) {
+    width: 100% !important;
+    margin-bottom: 0.25rem;
+  }
+
+  /* Format */
+  .nuf__item>div:nth-child(2) {
+    display: inline-block;
+    width: auto !important;
+    margin-left: 48px;
+    /* Icon 32px + margin 16px */
+    margin-right: 10px;
+    text-align: left !important;
+    background: var(--neutral-100);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem !important;
+    font-weight: 600;
+  }
+
+  /* Size */
+  .nuf__item>div:nth-child(3) {
+    display: inline-block;
+    width: auto !important;
+    text-align: left !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Remove Btn */
+  .nuf__item>div:nth-child(4) {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    width: auto !important;
+    justify-content: flex-end !important;
+    margin: 0 !important;
+  }
+
+  .nuf__icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+
+  .nuf__remove-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #9ca3af;
+    border: 1px solid transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nuf__remove-btn:hover {
+    background-color: #fee2e2;
+    color: #dc3545;
+    border-color: #fecaca;
+  }
+
+  .ncr__header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .ncr__item {
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .ncr__file-info {
+    width: 100% !important;
+  }
+
+  .ncr__arrow {
+    transform: rotate(90deg);
+    margin: 0.5rem 0;
+  }
+
+  .ncr__item>div:last-child {
+    width: 100% !important;
+    justify-content: space-between !important;
+    margin-top: 0.5rem;
+  }
+
+  .ncr__status-badge {
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .ncr__download-btn {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .ncr__footer {
+    flex-direction: column;
+  }
+
+  /* Format Selector Mobile */
+  .format-selector {
+    justify-content: center;
+  }
+
 }
 
 .nuf__item {
@@ -711,4 +843,20 @@ h6 {
   display: flex;
   justify-content: center;
   gap: 12px;
+}
+
+/* Utility classes for responsive visibility */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: block !important;
+  }
+}
+
+/* Default state for mobile-only elements (hidden on desktop) */
+.mobile-only {
+  display: none !important;
 }

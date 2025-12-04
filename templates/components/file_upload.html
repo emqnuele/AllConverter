@@ -9,7 +9,6 @@
             <h3 class="mb-3 fw-bold">Transform Your Files</h3>
             <p class="text-muted mb-4">Drag & drop files here or</p>
             <button class="btn btn-primary btn-lg px-4 d-flex align-items-center mx-auto" id="select-files-btn">
-                <i class="fas fa-file me-2"></i>
                 <span>Select Files</span>
             </button>
             <p class="text-muted mt-4 small">Supports multiple files (up to 500MB total)</p>
@@ -23,7 +22,7 @@
         display: inline-block;
         transform-style: preserve-3d;
     }
-    
+
     .upload-glow {
         position: absolute;
         top: 50%;
@@ -37,59 +36,68 @@
         z-index: -1;
         animation: pulse 3s ease-in-out infinite;
     }
-    
+
     @keyframes pulse {
-        0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.5; }
-        50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.8; }
+
+        0%,
+        100% {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 0.5;
+        }
+
+        50% {
+            transform: translate(-50%, -50%) scale(1.2);
+            opacity: 0.8;
+        }
     }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const dropArea = document.getElementById('drop-area');
         const uploadIcon = dropArea.querySelector('i');
-        
+
         // Subtle animation for the icon on mousemove
-        dropArea.addEventListener('mousemove', function(e) {
+        dropArea.addEventListener('mousemove', function (e) {
             if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                 const bounds = dropArea.getBoundingClientRect();
                 const x = (e.clientX - bounds.left) / bounds.width;
                 const y = (e.clientY - bounds.top) / bounds.height;
-                
+
                 const rotateX = (y - 0.5) * 10;
                 const rotateY = (0.5 - x) * 10;
-                
+
                 uploadIcon.style.transform = `translate3d(0, 0, 10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
             }
         });
-        
-        dropArea.addEventListener('mouseleave', function() {
+
+        dropArea.addEventListener('mouseleave', function () {
             uploadIcon.style.transform = 'translate3d(0, 0, 0) rotateX(0) rotateY(0)';
         });
-        
+
         // File drop animation
         const originalContent = dropArea.innerHTML;
-        
+
         function createFileParticle() {
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            
+
             const particle = document.createElement('div');
             particle.className = 'particle';
             const size = Math.random() * 8 + 4;
             particle.style.width = `${size}px`;
             particle.style.height = `${size}px`;
             particle.style.background = `rgba(${Math.round(Math.random() * 100 + 100)}, ${Math.round(Math.random() * 100 + 100)}, 255, 0.7)`;
-            
+
             const startX = Math.random() * 100;
             const startY = -20;
             const endX = Math.random() * 100;
             const endY = 120;
-            
+
             particle.style.left = `${startX}%`;
             particle.style.top = `${startY}%`;
-            
+
             dropArea.appendChild(particle);
-            
+
             gsap.to(particle, {
                 x: `${endX - startX}%`,
                 y: `${endY - startY}%`,
@@ -98,9 +106,9 @@
                 onComplete: () => particle.remove()
             });
         }
-        
+
         ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, function(e) {
+            dropArea.addEventListener(eventName, function (e) {
                 preventDefaults(e);
                 dropArea.classList.add('drag-over');
                 // Create particles when dragging over
