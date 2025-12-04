@@ -20,3 +20,4 @@ openpyxl  # Per documenti Excel
 python-pptx  # Per presentazioni PowerPoint
 gunicorn  # Production server
 static-ffmpeg  # FFmpeg binary for Render
+pyaudioop  # Required for pydub on Python 3.13+
