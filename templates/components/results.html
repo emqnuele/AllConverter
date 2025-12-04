@@ -1,29 +1,25 @@
-<div id="results-container" class="d-none mt-4">
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle me-2"></i>
-        <span id="success-count"></span> files converted successfully!
-    </div>
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th style="width: 35%">Original File</th>
-                    <th style="width: 15%">Type</th>
-                    <th style="width: 35%">Converted File</th>
-                    <th style="width: 15%">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="results-list">
-                <!-- Results will be added here -->
-            </tbody>
-        </table>
-    </div>
-    <div class="d-flex justify-content-center gap-2 mt-4">
-        <button id="download-all-btn" class="btn btn-primary px-4">
-            <i class="fas fa-download me-2"></i> Download All as ZIP
-        </button>
-        <button id="convert-more-btn" class="btn btn-outline-primary px-4">
-            <i class="fas fa-plus me-2"></i> Convert More Files
-        </button>
+<div id="ncr-container" class="d-none mt-5 stagger-entrance">
+    <div class="ncr__wrapper">
+        <!-- Success Header -->
+        <div class="ncr__header d-flex align-items-center justify-content-center">
+            <i class="fas fa-check-circle me-2 fs-5"></i>
+            <span class="fw-bold fs-5">Conversion Completed!</span>
+            <span class="ms-2 badge bg-white text-success rounded-pill px-3" id="ncr-success-count">0 files</span>
+        </div>
+
+        <!-- Results List -->
+        <div id="ncr-list" class="ncr__list">
+            <!-- Items injected by JS -->
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="ncr__footer">
+            <button id="ncr-download-all-btn" class="btn btn-primary px-4 py-2 fw-bold shadow-sm">
+                <i class="fas fa-download me-2"></i> Download All (ZIP)
+            </button>
+            <button id="ncr-convert-more-btn" class="btn btn-outline-primary px-4 py-2 fw-bold">
+                <i class="fas fa-redo me-2"></i> Convert More
+            </button>
+        </div>
     </div>
 </div>

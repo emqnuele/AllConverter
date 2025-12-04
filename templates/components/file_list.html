@@ -1,55 +1,35 @@
-<div id="selected-files-container" class="d-none mt-5 stagger-entrance">
-    <h4 class="mb-4 fw-bold position-relative d-inline-block">
-        Selected Files
-        <div class="position-absolute"
-            style="height: 4px; width: 50%; background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end)); bottom: -8px; left: 0; border-radius: 2px;">
-        </div>
-    </h4>
+<div id="nuf-container" class="d-none mt-5 stagger-entrance">
+    <div class="nuf__header d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold m-0 position-relative">
+            Selected Files
+            <div class="position-absolute"
+                style="height: 4px; width: 50%; background: linear-gradient(90deg, var(--primary-gradient-start), var(--primary-gradient-end)); bottom: -8px; left: 0; border-radius: 2px;">
+            </div>
+        </h4>
+        <button id="nuf-clear-btn" class="btn btn-outline-danger btn-sm">
+            <i class="fas fa-trash me-2"></i> Clear All
+        </button>
+    </div>
 
-    <div class="files-container bg-white rounded-3 shadow-sm p-3">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 40%">File</th>
-                        <th style="width: 15%" class="text-center">Format</th>
-                        <th style="width: 15%" class="text-center">Size</th>
-                        <th style="width: 30%">Status</th>
-                    </tr>
-                </thead>
-                <tbody id="file-list">
-                    <!-- Files will be added here -->
-                </tbody>
-            </table>
+    <div class="nuf__wrapper bg-white rounded-3 shadow-sm p-4">
+        <!-- List Header -->
+        <div class="nuf__list-header d-none d-md-flex text-muted text-uppercase fw-bold fs-7 mb-3 px-3">
+            <div style="width: 45%">File Name</div>
+            <div style="width: 15%" class="text-center">Format</div>
+            <div style="width: 15%" class="text-center">Size</div>
+            <div style="width: 25%" class="text-end">Action</div>
         </div>
 
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <button id="convert-btn" class="btn btn-success px-4 py-2">
-                <i class="fas fa-bolt-lightning me-2"></i> Convert Files
-            </button>
-            <button id="clear-btn" class="btn btn-outline-secondary px-4 py-2">
-                <i class="fas fa-trash me-2"></i> Clear
+        <!-- Files List -->
+        <div id="nuf-list" class="nuf__list">
+            <!-- Items will be injected here by JS -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex justify-content-center gap-3 mt-4 pt-3 border-top">
+            <button id="nuf-convert-btn" class="btn btn-success px-5 py-2 fw-bold shadow-sm">
+                <i class="fas fa-bolt me-2"></i> Convert Now
             </button>
         </div>
     </div>
 </div>
-
-<style>
-    .files-container {
-        border-radius: 16px;
-        transition: all 0.3s ease;
-    }
-
-    /* Removed invalid tr border-radius */
-
-    .file-type-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        background: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 12px;
-    }
-</style>

@@ -5,19 +5,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('file-input');
     const selectFilesBtn = document.getElementById('select-files-btn');
-    const fileList = document.getElementById('file-list');
-    const selectedFilesContainer = document.getElementById('selected-files-container');
-    const convertBtn = document.getElementById('convert-btn');
-    const clearBtn = document.getElementById('clear-btn');
+
+    // Updated Selectors for New UI
+    const fileList = document.getElementById('nuf-list');
+    const selectedFilesContainer = document.getElementById('nuf-container');
+    const convertBtn = document.getElementById('nuf-convert-btn');
+    const clearBtn = document.getElementById('nuf-clear-btn');
+
     const uploadContainer = document.getElementById('upload-container');
     const progressContainer = document.getElementById('progress-container');
     const progressBar = document.querySelector('.progress-bar');
     const progressText = document.getElementById('progress-text');
-    const resultsContainer = document.getElementById('results-container');
-    const resultsList = document.getElementById('results-list');
-    const successCount = document.getElementById('success-count');
-    const downloadAllBtn = document.getElementById('download-all-btn');
-    const convertMoreBtn = document.getElementById('convert-more-btn');
+
+    // Updated Selectors for Results UI
+    const resultsContainer = document.getElementById('ncr-container');
+    const resultsList = document.getElementById('ncr-list');
+    const successCount = document.getElementById('ncr-success-count');
+    const downloadAllBtn = document.getElementById('ncr-download-all-btn');
+    const convertMoreBtn = document.getElementById('ncr-convert-more-btn');
 
     // Advanced options elements
     const advancedOptionsBtn = document.getElementById('advanced-options-btn');
@@ -488,39 +493,38 @@ document.addEventListener('DOMContentLoaded', function () {
         showSelectedFilesContainer();
     }
 
+    // UPDATED: New File List Implementation
     function updateFileList() {
         fileList.innerHTML = '';
 
         selectedFiles.forEach((file, index) => {
-            const row = document.createElement('tr');
-            row.className = 'file-item';
+            const row = document.createElement('div');
+            row.className = 'nuf__item';
 
             // Determina il tipo di file dall'estensione
             const extension = file.name.split('.').pop().toLowerCase();
             const fileTypeIcon = getFileTypeIcon(extension);
 
             row.innerHTML = `
-                <td class="file-cell" style="width: 40%">
-                    <div class="d-flex align-items-center">
-                        <div class="file-type-icon me-2">
-                            <i class="${fileTypeIcon}"></i>
-                        </div>
-                        <span class="fw-bold text-truncate">${file.name}</span>
+                <div style="width: 45%" class="d-flex align-items-center">
+                    <div class="nuf__icon me-3">
+                        <i class="${fileTypeIcon}"></i>
                     </div>
-                </td>
-                <td style="width: 15%" class="text-center">${extension.toUpperCase()}</td>
-                <td style="width: 15%" class="text-center">${formatFileSize(file.size)}</td>
-                <td style="width: 30%">
-                    <div class="d-flex align-items-center justify-content-end">
-                        <span class="badge bg-secondary">Pending</span>
-                        <button class="btn btn-sm btn-outline-danger ms-2 remove-btn" data-index="${index}">
-                            <i class="fas fa-times"></i>
-                        </button>
+                    <div style="overflow: hidden;">
+                        <div class="nuf__name" title="${file.name}">${file.name}</div>
+                        <div class="nuf__meta text-muted small">Ready to convert</div>
                     </div>
-                </td>
+                </div>
+                <div style="width: 15%" class="text-center fw-bold text-secondary small">${extension.toUpperCase()}</div>
+                <div style="width: 15%" class="text-center text-muted small">${formatFileSize(file.size)}</div>
+                <div style="width: 25%" class="d-flex justify-content-end">
+                    <button class="nuf__remove-btn" data-index="${index}" title="Remove file">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             `;
 
-            const removeBtn = row.querySelector('.remove-btn');
+            const removeBtn = row.querySelector('.nuf__remove-btn');
             removeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 removeFile(index);
@@ -662,19 +666,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // UPDATED: New Results Implementation
     function displayResults(data) {
         progressContainer.classList.add('d-none');
         resultsContainer.classList.remove('d-none');
 
         const successfulFiles = data.files.filter(file => file.success);
-        successCount.textContent = successfulFiles.length;
+        successCount.textContent = `${successfulFiles.length} files`;
 
         resultsList.innerHTML = '';
         data.files.forEach(file => {
-            const row = document.createElement('tr');
-            row.className = 'file-item';
+            const row = document.createElement('div');
+            row.className = 'ncr__item';
 
-            const statusClass = file.success ? 'success' : 'danger';
+            const statusClass = file.success ? 'ncr__status-badge--success' : 'ncr__status-badge--error';
             const statusIcon = file.success ? 'check-circle' : 'exclamation-circle';
             const statusText = file.success ? 'Success' : 'Failed';
 
@@ -684,27 +689,47 @@ document.addEventListener('DOMContentLoaded', function () {
             const convertedExtension = file.filename.split('.').pop();
 
             row.innerHTML = `
-                <td style="width: 35%">
-                    <i class="${getFileTypeIcon(originalExtension)} text-muted me-2"></i>
-                    ${originalName}.${originalExtension}
-                </td>
-                <td style="width: 15%">${file.category || 'unknown'}</td>
-                <td style="width: 35%">
-                    <i class="${getFileTypeIcon(convertedExtension)} text-muted me-2"></i>
-                    ${file.filename}
-                </td>
-                <td style="width: 15%">
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-${statusClass} me-2">
+                <div class="flex-grow-1 d-flex align-items-center justify-content-between">
+                    <!-- Original File -->
+                    <div class="ncr__file-info" style="width: 35%">
+                        <div class="ncr__icon ncr__icon--original">
+                            <i class="${getFileTypeIcon(originalExtension)}"></i>
+                        </div>
+                        <div class="text-truncate">
+                            <div class="fw-bold text-dark text-truncate" title="${originalName}.${originalExtension}">${originalName}.${originalExtension}</div>
+                            <div class="small text-muted">${originalExtension.toUpperCase()}</div>
+                        </div>
+                    </div>
+
+                    <!-- Arrow -->
+                    <div class="ncr__arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+
+                    <!-- Converted File -->
+                    <div class="ncr__file-info" style="width: 35%">
+                        <div class="ncr__icon ncr__icon--converted">
+                            <i class="${getFileTypeIcon(convertedExtension)}"></i>
+                        </div>
+                        <div class="text-truncate">
+                            <div class="fw-bold text-dark text-truncate" title="${file.filename}">${file.filename}</div>
+                            <div class="small text-muted">${convertedExtension.toUpperCase()}</div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex align-items-center justify-content-end gap-3" style="width: 20%">
+                        <span class="ncr__status-badge ${statusClass}">
                             <i class="fas fa-${statusIcon}"></i> ${statusText}
                         </span>
+                        
                         ${file.success ? `
-                        <a href="/download/${currentSessionId}/${file.filename}" class="btn btn-sm btn-outline-primary download-item" download>
+                        <a href="/download/${currentSessionId}/${file.filename}" class="ncr__download-btn" download title="Download File">
                             <i class="fas fa-download"></i>
                         </a>
                         ` : ''}
                     </div>
-                </td>
+                </div>
             `;
 
             resultsList.appendChild(row);
