@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Get original filename by removing the output extension
             const originalName = file.filename.split('.')[0];
-            const originalExtension = file.mime_type.split('/')[1] || 'unknown';
+            const originalExtension = file.mime_type ? file.mime_type.split('/')[1] : 'unknown';
             const convertedExtension = file.filename.split('.').pop();
 
             row.innerHTML = `
@@ -709,6 +709,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
             resultsList.appendChild(row);
         });
+
+        // Save to local history
+        saveToHistory(data);
+    }
+
+    function saveToHistory(data) {
+        try {
+            const historyItem = {
+                session_id: data.session_id,
+                timestamp: Date.now() / 1000,
+                file_count: data.files.length,
+                files: data.files.map(f => ({
+                    filename: f.filename,
+                    size: 0,
+                    category: f.category,
+                    extension: f.filename.split('.').pop()
+                })),
+                categories: {}
+            };
+
+            data.files.forEach(f => {
+                const cat = f.category || 'Other';
+                historyItem.categories[cat] = (historyItem.categories[cat] || 0) + 1;
+            });
+
+            let history = JSON.parse(localStorage.getItem('conversion_history') || '[]');
+            history.unshift(historyItem);
+            if (history.length > 50) history = history.slice(0, 50);
+            localStorage.setItem('conversion_history', JSON.stringify(history));
+
+            if (window.historyManager) {
+                window.historyManager.loadHistory();
+            }
+        } catch (e) {
+            console.error('Error saving to history:', e);
+        }
     }
 
     function downloadAllFiles() {
@@ -843,8 +879,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const indicator = document.querySelector('.tab-indicator');
             if (indicator) {
                 const activeLink = document.querySelector('.nav-link.active');
-                indicator.style.left = `${activeLink.offsetLeft}px`;
-                indicator.style.width = `${activeLink.offsetWidth}px`;
+                indicator.style.left = `${activeLink.offsetLeft} px`;
+                indicator.style.width = `${activeLink.offsetWidth} px`;
             }
         });
     });
