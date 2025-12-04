@@ -1,4 +1,4 @@
-# All-in-One File Converter
+# All-File Converter
 
 A modern web application to convert files between various formats, completely free and running locally on your PC.
 

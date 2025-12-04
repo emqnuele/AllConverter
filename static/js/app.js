@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // DOM Elements - Base
     const fileTypeSelect = document.getElementById('file-type-select');
     const targetFormatSelect = document.getElementById('target-format-select');
@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const successCount = document.getElementById('success-count');
     const downloadAllBtn = document.getElementById('download-all-btn');
     const convertMoreBtn = document.getElementById('convert-more-btn');
-    
+
     // Advanced options elements
     const advancedOptionsBtn = document.getElementById('advanced-options-btn');
     const optionsPanels = {
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         video: document.getElementById('video-options'),
         document: document.getElementById('document-options')
     };
-    
+
     // Image option controls (existing)
     const qualitySlider = document.getElementById('quality-slider');
     const qualityValue = document.getElementById('quality-value');
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const audioTrimOptions = document.getElementById('audio-trim-options');
     const audioTrimStart = document.getElementById('audio-trim-start');
     const audioTrimEnd = document.getElementById('audio-trim-end');
-    
+
     // Video option controls
     const videoBitrateSelect = document.getElementById('video-bitrate');
     const videoAudioBitrateSelect = document.getElementById('video-audio-bitrate');
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     convertBtn.addEventListener('click', convertFiles);
     convertMoreBtn.addEventListener('click', resetApp);
     downloadAllBtn.addEventListener('click', downloadAllFiles);
-    
+
     // Advanced options event listeners
     fileTypeSelect.addEventListener('change', updateOptionsPanel);
     qualitySlider.addEventListener('input', updateQualityValue);
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
     volumeSlider.addEventListener('input', () => volumeValue.value = volumeSlider.value);
     volumeValue.addEventListener('input', () => volumeSlider.value = volumeValue.value);
     audioTrimSwitch.addEventListener('change', () => toggleElement(audioTrimOptions, audioTrimSwitch.checked));
-    
+
     // Event Listeners - Video Options
     resolutionSwitch.addEventListener('change', () => toggleElement(resolutionOptions, resolutionSwitch.checked));
     resolutionSelect.addEventListener('change', () => {
@@ -163,12 +163,12 @@ document.addEventListener('DOMContentLoaded', function() {
     videoRotateSwitch.addEventListener('change', () => toggleElement(videoRotateOptions, videoRotateSwitch.checked));
     codecSwitch.addEventListener('change', () => toggleElement(codecOptions, codecSwitch.checked));
     videoTrimSwitch.addEventListener('change', () => toggleElement(videoTrimOptions, videoTrimSwitch.checked));
-    extractAudioSwitch.addEventListener('change', function() {
+    extractAudioSwitch.addEventListener('change', function () {
         if (this.checked) {
             noAudioSwitch.checked = false;
         }
     });
-    noAudioSwitch.addEventListener('change', function() {
+    noAudioSwitch.addEventListener('change', function () {
         if (this.checked) {
             extractAudioSwitch.checked = false;
         }
@@ -242,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateTargetFormats() {
         const fileType = fileTypeSelect.value;
         const formats = supportedFormats[fileType]?.output || [];
-        
+
         targetFormatSelect.innerHTML = '';
         formats.forEach(format => {
             const option = document.createElement('option');
@@ -250,14 +250,14 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = format.toUpperCase();
             targetFormatSelect.appendChild(option);
         });
-        
+
         updateFileInputAccept();
     }
 
     function updateFileInputAccept() {
         const fileType = fileTypeSelect.value;
         const formats = supportedFormats[fileType]?.input || [];
-        
+
         // Costruisci la stringa di formato accept
         if (formats.length > 0) {
             const acceptString = formats.map(format => `.${format}`).join(',');
@@ -266,18 +266,18 @@ document.addEventListener('DOMContentLoaded', function() {
             fileInput.removeAttribute('accept');
         }
     }
-    
+
     // Aggiorna l'interfaccia in base al tipo di file selezionato
     function handleFileTypeChange() {
         updateTargetFormats();
         updateOptionsPanel();
         updateFileInputAccept();
     }
-    
+
     // Mostra il pannello di opzioni appropriato
     function updateOptionsPanel() {
         const fileType = fileTypeSelect.value;
-        
+
         // Nascondi tutti i pannelli di opzioni
         Object.keys(optionsPanels).forEach(type => {
             toggleElement(optionsPanels[type], type === fileType);
@@ -288,25 +288,25 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateQualityValue() {
         qualityValue.textContent = qualitySlider.value;
     }
-    
+
     function toggleResizeOptions() {
         resizeOptions.classList.toggle('d-none', !resizeSwitch.checked);
     }
-    
+
     function updateResizeInputs() {
         resizePercentageInput.disabled = !resizePercentage.checked;
         resizeWidth.disabled = !resizeDimensions.checked;
         resizeHeight.disabled = !resizeDimensions.checked;
     }
-    
+
     function toggleRotateOptions() {
         rotateOptions.classList.toggle('d-none', !rotateSwitch.checked);
     }
-    
+
     function updateRotateValue() {
         rotateAngle.value = rotateSlider.value;
     }
-    
+
     function updateRotateSlider() {
         // Ensure value is within 0-359
         let val = parseInt(rotateAngle.value) || 0;
@@ -314,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
         rotateAngle.value = val;
         rotateSlider.value = val;
     }
-    
+
     function setRotateAngle(angle) {
         // Add to current angle or set directly
         if (angle < 0) {
@@ -324,19 +324,19 @@ document.addEventListener('DOMContentLoaded', function() {
         rotateAngle.value = angle;
         updateRotateSlider();
     }
-    
+
     function toggleFlipOptions() {
         flipOptions.classList.toggle('d-none', !flipSwitch.checked);
     }
-    
+
     function toggleFilterOptions() {
         filterOptions.classList.toggle('d-none', !filterSwitch.checked);
     }
-    
+
     // Raccoglie le opzioni audio
     function getAudioOptions() {
         if (fileTypeSelect.value !== 'audio') return {};
-        
+
         return {
             bitrate: audioBitrateSelect.value,
             sample_rate: {
@@ -363,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Raccoglie le opzioni video
     function getVideoOptions() {
         if (fileTypeSelect.value !== 'video') return {};
-        
+
         let resolution = null;
         if (resolutionSwitch.checked) {
             resolution = resolutionSelect.value;
@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 resolution = `${customWidth.value}x${customHeight.value}`;
             }
         }
-        
+
         return {
             video_bitrate: videoBitrateSelect.value,
             audio_bitrate: videoAudioBitrateSelect.value,
@@ -405,17 +405,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Raccoglie le opzioni dei documenti
     function getDocumentOptions() {
         if (fileTypeSelect.value !== 'document') return {};
-        
+
         let margins = null;
         if (marginsSwitch.checked) {
             margins = {
                 top: parseInt(marginTop.value) || 20,
                 right: parseInt(marginRight.value) || 20,
-                bottom: parseInt(marginBottom.value) || 20, 
+                bottom: parseInt(marginBottom.value) || 20,
                 left: parseInt(marginLeft.value) || 20
             };
         }
-        
+
         return {
             preserve_metadata: preserveMetadataSwitch.checked,
             paper_size: paperSizeSwitch.checked ? paperSizeSelect.value : null,
@@ -432,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getAdvancedOptions() {
         const fileType = fileTypeSelect.value;
         let options = {};
-        
+
         if (fileType === 'image') {
             options.image_options = {
                 quality: parseInt(qualitySlider.value),
@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (fileType === 'document') {
             options.document_options = getDocumentOptions();
         }
-        
+
         return options;
     }
 
@@ -490,15 +490,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateFileList() {
         fileList.innerHTML = '';
-        
+
         selectedFiles.forEach((file, index) => {
             const row = document.createElement('tr');
             row.className = 'file-item';
-            
+
             // Determina il tipo di file dall'estensione
             const extension = file.name.split('.').pop().toLowerCase();
             const fileTypeIcon = getFileTypeIcon(extension);
-            
+
             row.innerHTML = `
                 <td class="file-cell" style="width: 40%">
                     <div class="d-flex align-items-center">
@@ -519,13 +519,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </td>
             `;
-            
+
             const removeBtn = row.querySelector('.remove-btn');
             removeBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 removeFile(index);
             });
-            
+
             fileList.appendChild(row);
         });
     }
@@ -546,14 +546,14 @@ document.addEventListener('DOMContentLoaded', function() {
             'tif': 'fas fa-file-image',
             'svg': 'fas fa-file-image',
             'avif': 'fas fa-file-image',
-            
+
             // Audio
             'mp3': 'fas fa-file-audio',
             'wav': 'fas fa-file-audio',
             'ogg': 'fas fa-file-audio',
             'flac': 'fas fa-file-audio',
             'aac': 'fas fa-file-audio',
-            
+
             // Video
             'mp4': 'fas fa-file-video',
             'avi': 'fas fa-file-video',
@@ -561,7 +561,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'wmv': 'fas fa-file-video',
             'mkv': 'fas fa-file-video',
             'webm': 'fas fa-file-video',
-            
+
             // Documenti
             'pdf': 'fas fa-file-pdf',
             'doc': 'fas fa-file-word',
@@ -572,14 +572,14 @@ document.addEventListener('DOMContentLoaded', function() {
             'pptx': 'fas fa-file-powerpoint',
             'txt': 'fas fa-file-alt',
         };
-        
+
         return iconMap[extension] || 'fas fa-file';
     }
 
     function removeFile(index) {
         selectedFiles.splice(index, 1);
         updateFileList();
-        
+
         if (selectedFiles.length === 0) {
             hideSelectedFilesContainer();
         }
@@ -615,46 +615,46 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadContainer.classList.add('d-none');
         selectedFilesContainer.classList.add('d-none');
         progressContainer.classList.remove('d-none');
-        
+
         // Create FormData
         const formData = new FormData();
         selectedFiles.forEach(file => {
             formData.append('files[]', file);
         });
-        
+
         // Add target format
         formData.append('target_format', targetFormatSelect.value);
-        
+
         // Add advanced options
         const advancedOptions = getAdvancedOptions();
         for (const [key, value] of Object.entries(advancedOptions)) {
             formData.append(key, JSON.stringify(value));
         }
-        
+
         try {
             progressBar.style.width = '50%';
             progressText.textContent = 'Uploading and converting files...';
-            
+
             const response = await fetch('/upload', {
                 method: 'POST',
                 body: formData
             });
-            
+
             if (!response.ok) {
                 throw new Error('Server error');
             }
-            
+
             progressBar.style.width = '100%';
             progressText.textContent = 'Conversion complete!';
-            
+
             const data = await response.json();
             currentSessionId = data.session_id;
-            
+
             // After a short delay, show results
             setTimeout(() => {
                 displayResults(data);
             }, 500);
-            
+
         } catch (error) {
             console.error('Error:', error);
             alert('An error occurred during conversion: ' + error.message);
@@ -665,35 +665,35 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayResults(data) {
         progressContainer.classList.add('d-none');
         resultsContainer.classList.remove('d-none');
-        
+
         const successfulFiles = data.files.filter(file => file.success);
         successCount.textContent = successfulFiles.length;
-        
+
         resultsList.innerHTML = '';
         data.files.forEach(file => {
             const row = document.createElement('tr');
             row.className = 'file-item';
-            
+
             const statusClass = file.success ? 'success' : 'danger';
             const statusIcon = file.success ? 'check-circle' : 'exclamation-circle';
             const statusText = file.success ? 'Success' : 'Failed';
-            
+
             // Get original filename by removing the output extension
             const originalName = file.filename.split('.')[0];
             const originalExtension = file.mime_type.split('/')[1] || 'unknown';
             const convertedExtension = file.filename.split('.').pop();
-            
+
             row.innerHTML = `
-                <td>
+                <td style="width: 35%">
                     <i class="${getFileTypeIcon(originalExtension)} text-muted me-2"></i>
                     ${originalName}.${originalExtension}
                 </td>
-                <td>${file.category || 'unknown'}</td>
-                <td>
+                <td style="width: 15%">${file.category || 'unknown'}</td>
+                <td style="width: 35%">
                     <i class="${getFileTypeIcon(convertedExtension)} text-muted me-2"></i>
                     ${file.filename}
                 </td>
-                <td>
+                <td style="width: 15%">
                     <div class="d-flex align-items-center">
                         <span class="badge bg-${statusClass} me-2">
                             <i class="fas fa-${statusIcon}"></i> ${statusText}
@@ -706,16 +706,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </td>
             `;
-            
+
             resultsList.appendChild(row);
         });
     }
 
     function downloadAllFiles() {
         if (!currentSessionId) return;
-        
+
         window.location.href = `/download_all/${currentSessionId}`;
-        
+
         // Clear session data after download
         setTimeout(() => {
             fetch(`/clear/${currentSessionId}`);
@@ -727,32 +727,32 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedFiles = [];
         currentSessionId = null;
         fileInput.value = '';
-        
+
         // Reset UI visibility
         resultsContainer.classList.add('d-none');
         selectedFilesContainer.classList.add('d-none');
         progressContainer.classList.add('d-none');
         uploadContainer.classList.remove('d-none');
-        
+
         // Switch to converter view if in history
         const historyContainer = document.getElementById('history-container');
         const converterContainer = document.getElementById('converter-container');
-        
+
         if (historyContainer && converterContainer && !historyContainer.classList.contains('d-none')) {
             historyContainer.classList.add('d-none');
             converterContainer.classList.remove('d-none');
-            
+
             // Update tabs
             document.querySelectorAll('.nav-link').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.view === 'converter');
             });
         }
-        
+
         // Reinitialize format selectors and options
         updateTargetFormats();
         updateOptionsPanel();
         updateFileInputAccept();
-        
+
         // Reinitialize advanced options
         if (fileTypeSelect.value === 'image') {
             qualitySlider.value = 95;
@@ -766,19 +766,19 @@ document.addEventListener('DOMContentLoaded', function() {
             filterSwitch.checked = false;
             toggleFilterOptions();
         }
-        
+
         // Reset animations
         if (window.uiAnimations) {
             window.uiAnimations.resetAnimations();
         }
-        
+
         // Animate entrance
         if (window.uiAnimations) {
             setTimeout(() => {
                 window.uiAnimations.animateEntrance();
             }, 100);
         }
-        
+
         // Reset format cards highlight
         setTimeout(() => {
             const formatCards = document.querySelectorAll('.format-card');
@@ -796,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.formatSelector.init();
                 }
             }
-            
+
             // Reset format carousel if it exists
             const targetFormatContainer = document.getElementById('target-format-container');
             if (targetFormatContainer && window.formatSelector) {
@@ -804,27 +804,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 200);
     }
-    
+
     // Initialize UI state
     updateOptionsPanel();
     updateQualityValue();
 });
 
 // Navigation between converter and history
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Tab navigation
     const navLinks = document.querySelectorAll('.nav-link[data-view]');
     const converterView = document.getElementById('converter-container');
     const historyView = document.getElementById('history-container');
-    
+
     navLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function () {
             const view = this.dataset.view;
-            
+
             // Set active tab
             navLinks.forEach(nav => nav.classList.remove('active'));
             this.classList.add('active');
-            
+
             // Show appropriate view
             if (view === 'converter') {
                 converterView.classList.remove('d-none');
@@ -832,13 +832,13 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (view === 'history') {
                 converterView.classList.add('d-none');
                 historyView.classList.remove('d-none');
-                
+
                 // Load history data if needed
                 if (window.historyManager) {
                     window.historyManager.loadHistory();
                 }
             }
-            
+
             // Animate indicator (if using tab indicator)
             const indicator = document.querySelector('.tab-indicator');
             if (indicator) {
