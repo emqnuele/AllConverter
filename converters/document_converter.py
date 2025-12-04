@@ -11,6 +11,15 @@ try:
     from docx2pdf import convert as docx_to_pdf
 except ImportError:
     docx_to_pdf = None
+
+# Fallback imports
+try:
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+    import textwrap
+except ImportError:
+    pass
+
 from markdown import markdown
 import html2text
 from bs4 import BeautifulSoup
@@ -168,9 +177,17 @@ class DocumentConverter(BaseConverter):
             # Conversione a PDF
             try:
                 if source_format == 'docx':
-                    # Usa docx2pdf
-                    docx_to_pdf(input_path, output_path)
-                    return True
+                    # Usa docx2pdf se disponibile (Windows/Office installato)
+                    if docx_to_pdf is not None:
+                        try:
+                            docx_to_pdf(input_path, output_path)
+                            return True
+                        except Exception as e:
+                            print(f"docx2pdf fallito, tento fallback: {e}")
+                    
+                    # Fallback: Pure Python conversion (Linux/Render)
+                    return self._docx_to_pdf_fallback(input_path, output_path)
+
                 elif source_format in ['md', 'markdown', 'txt', 'html', 'htm']:
                     # Usa Pandoc se disponibile
                     if self.pandoc_available:
@@ -551,3 +568,54 @@ class DocumentConverter(BaseConverter):
         except Exception as e:
             print(f"Errore nel recupero delle informazioni del documento: {e}")
             return {'format': ext, 'error': str(e)}
+
+    def _docx_to_pdf_fallback(self, input_path, output_path):
+        """
+        Fallback puro Python per convertire DOCX in PDF senza Word/LibreOffice.
+        Utile per ambienti serverless come Render/Vercel.
+        """
+        try:
+            doc = docx.Document(input_path)
+            c = canvas.Canvas(output_path, pagesize=letter)
+            width, height = letter
+            
+            # Margini
+            margin_left = 50
+            margin_top = 50
+            y_position = height - margin_top
+            
+            # Font base
+            c.setFont("Helvetica", 12)
+            
+            for para in doc.paragraphs:
+                text = para.text
+                if not text:
+                    continue
+                
+                # Gestione semplice dello stile (grassetto per titoli)
+                if para.style.name.startswith('Heading'):
+                    c.setFont("Helvetica-Bold", 14)
+                    y_position -= 10
+                else:
+                    c.setFont("Helvetica", 12)
+                
+                # Wrap del testo
+                lines = textwrap.wrap(text, width=90)  # Approssimativo
+                
+                for line in lines:
+                    if y_position < 50:  # Nuova pagina
+                        c.showPage()
+                        y_position = height - margin_top
+                        c.setFont("Helvetica", 12)
+                    
+                    c.drawString(margin_left, y_position, line)
+                    y_position -= 15
+                
+                y_position -= 10  # Spazio tra paragrafi
+            
+            c.save()
+            return True
+            
+        except Exception as e:
+            print(f"Errore nel fallback DOCX->PDF: {e}")
+            return False
