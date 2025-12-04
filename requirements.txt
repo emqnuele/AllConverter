@@ -6,10 +6,7 @@ python-multipart
 werkzeug
 # pyheif  # Commentato per evitare la compilazione
 python-magic-bin; sys_platform == 'win32'  # Supporto Win/Mac per magic
-python-magic  # Per il rilevamento MIME
 ffmpeg-python  # Per audio/video - wrapper API di FFmpeg
-moviepy  # Wrapper di ffmpeg più facile da usare
-pydub  # Per elaborazione audio
 PyPDF2>=3.0.0  # Per documenti PDF
 python-docx  # Per documenti Word
 docx2pdf  # Per conversione Word a PDF
@@ -21,4 +18,3 @@ python-pptx  # Per presentazioni PowerPoint
 gunicorn  # Production server
 static-ffmpeg  # FFmpeg binary for Render
 reportlab  # Pure Python PDF generation (fallback)
-pyaudioop  # Required for pydub on Python 3.13+

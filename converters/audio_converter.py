@@ -1,6 +1,5 @@
 import os
 import subprocess
-from pydub import AudioSegment
 from .base_converter import BaseConverter
 
 class AudioConverter(BaseConverter):
@@ -45,63 +44,47 @@ class AudioConverter(BaseConverter):
             normalize = kwargs.get('normalize', False)
             trim = kwargs.get('trim')
             
-            # Per conversioni semplici, usiamo pydub che è più facile da usare
-            try:
-                # Carica il file audio
-                audio = AudioSegment.from_file(input_path)
-                
-                # Applica modifiche (se richieste)
-                if trim and len(trim) == 2:
-                    audio = audio[trim[0]:trim[1]]
-                    
-                if volume_change is not None:
-                    audio = audio + volume_change  # pydub usa + per aumentare, - per diminuire
-                
-                if normalize:
-                    audio = audio.normalize()
-                
-                if channels:
-                    audio = audio.set_channels(channels)
-                
-                if sample_rate:
-                    audio = audio.set_frame_rate(sample_rate)
-                
-                # Esporta con le impostazioni di bitrate
-                export_params = {}
-                if bitrate:
-                    export_params["bitrate"] = bitrate
-                
-                audio.export(output_path, format=os.path.splitext(output_path)[1][1:], **export_params)
-                return True
+            # Costruisci comando FFmpeg
+            cmd = ['ffmpeg', '-y', '-i', input_path]
             
-            except Exception as e:
-                print(f"Pydub non è riuscito a convertire: {e}. Provo con FFmpeg diretto.")
-                # Fallback su FFmpeg diretto
-                cmd = ['ffmpeg', '-y', '-i', input_path]
+            # Aggiungi opzioni
+            if bitrate:
+                cmd.extend(['-b:a', bitrate])
+            if sample_rate:
+                cmd.extend(['-ar', str(sample_rate)])
+            if channels:
+                cmd.extend(['-ac', str(channels)])
+            
+            # Filtri audio complessi
+            af_filters = []
+            
+            if volume_change:
+                # volume=3dB
+                af_filters.append(f'volume={volume_change}dB')
+            
+            if normalize:
+                # Normalizza l'audio con filtro loudnorm
+                af_filters.append('loudnorm')
+            
+            if af_filters:
+                cmd.extend(['-af', ','.join(af_filters)])
+            
+            # Trim (taglio)
+            if trim and len(trim) == 2:
+                # -ss start -to end (converti ms in secondi)
+                cmd.extend(['-ss', str(trim[0]/1000), '-to', str(trim[1]/1000)])
+            
+            # Output file
+            cmd.append(output_path)
+            
+            # Esegui FFmpeg
+            result = subprocess.run(cmd, capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                print(f"FFmpeg error: {result.stderr}")
+                return False
                 
-                # Aggiungi opzioni
-                if bitrate:
-                    cmd.extend(['-b:a', bitrate])
-                if sample_rate:
-                    cmd.extend(['-ar', str(sample_rate)])
-                if channels:
-                    cmd.extend(['-ac', str(channels)])
-                if volume_change:
-                    # -af "volume=3dB" per aumentare di 3dB
-                    cmd.extend(['-af', f'volume={volume_change}dB'])
-                if normalize:
-                    # Normalizza l'audio con filtro loudnorm
-                    cmd.extend(['-af', 'loudnorm'])
-                if trim and len(trim) == 2:
-                    # -ss start -to end
-                    cmd.extend(['-ss', str(trim[0]/1000), '-to', str(trim[1]/1000)])
-                
-                # Output file
-                cmd.append(output_path)
-                
-                # Esegui FFmpeg
-                result = subprocess.run(cmd, capture_output=True, text=True)
-                return result.returncode == 0
+            return True
                 
         except Exception as e:
             print(f"Errore durante la conversione audio: {e}")
