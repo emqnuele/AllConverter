@@ -83,7 +83,10 @@ export function Select({
       <button
         ref={triggerRef}
         type="button"
-        onClick={() => (open ? setOpen(false) : openDropdown())}
+        onClick={(e) => {
+          e.stopPropagation(); // prevent label from re-firing click on this button
+          open ? setOpen(false) : openDropdown();
+        }}
         className="w-full h-9 px-3 rounded-xl border border-border dark:border-white/[0.08] bg-transparent dark:bg-white/[0.03] text-foreground text-sm text-left flex items-center justify-between gap-2 focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all duration-200 cursor-pointer"
       >
         <span className="truncate">{selected?.label ?? ""}</span>
@@ -96,11 +99,14 @@ export function Select({
         </motion.span>
       </button>
 
-      <AnimatePresence>
-        {open &&
-          createPortal(
+      {/* AnimatePresence MUST be inside the portal so it shares the same
+          React subtree as motion.div — cross-portal presence context breaks. */}
+      {createPortal(
+        <AnimatePresence>
+          {open && (
             <motion.div
               ref={dropdownRef}
+              key="dropdown"
               initial={{ opacity: 0, y: -6, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -6, scale: 0.97 }}
@@ -140,10 +146,11 @@ export function Select({
                   </button>
                 );
               })}
-            </motion.div>,
-            document.body
+            </motion.div>
           )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }
