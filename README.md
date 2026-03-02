@@ -1,144 +1,276 @@
-# All-File Converter
+# AllConverter
 
-A modern web application to convert files between various formats, completely free and running locally on your PC.
+A self-hosted file conversion service supporting images, audio, video and documents. All processing runs locally — no data leaves the machine.
 
+---
 
+## Stack
 
-## Features
+| Layer | Technology |
+|---|---|
+| API | FastAPI 0.110+ / Uvicorn (ASGI) |
+| Frontend | Vite 5 / React 18 / TypeScript |
+| Styling | Tailwind CSS 3 / CSS custom properties |
+| Animations | Framer Motion 11 |
+| Image processing | Pillow / pillow-heif |
+| Audio / Video | FFmpeg via ffmpeg-python |
+| Documents | PyPDF2, python-docx, ReportLab, Pandoc (optional) |
 
-- 🖼️ Convert images between different formats (JPG, PNG, WebP, HEIC, etc.)
-- 🎛️ Advanced options for image manipulation (resize, rotate, filters)
-- 🎵 Convert audio files with advanced settings
-- 🎬 Support for video conversion with multiple settings
-- 📄 Convert documents between various formats (PDF, DOCX, TXT, HTML, MD, etc.)
-- 📦 Process multiple files simultaneously
-- 🚀 Parallel processing for faster conversions
-- 🔄 Drag-and-drop interface
-- 💾 Download individual files or all as a ZIP
-- 🛡️ 100% local processing - no data is uploaded to external servers
-- 🆓 Completely free and open source
-
-
+---
 
 ## Requirements
 
-- Python 3.7 or higher
-- pip (Python package installer)
-- FFmpeg (for audio/video conversions)
-- Pandoc (optional, for advanced document conversions)
+- Python 3.10 or later
+- Node.js 18 or later
+- FFmpeg installed and available on `PATH`
+- Pandoc (optional — required only for advanced document conversions such as EPUB, LaTeX, reStructuredText)
 
+### Installing FFmpeg
 
+```bash
+# Debian / Ubuntu
+apt install ffmpeg
 
+# macOS
+brew install ffmpeg
 
-## Installation
+# Windows
+# Download from https://ffmpeg.org/download.html and add to PATH
+```
 
-1. Clone or download this repository to your local machine.
+### Installing Pandoc (optional)
 
-2. Navigate to the project directory in your terminal:
+```bash
+# Debian / Ubuntu
+apt install pandoc
 
-   ```
-   cd all_in_one_converter
-   ```
+# macOS
+brew install pandoc
 
-3. Install the required dependencies:
+# Windows
+# Download from https://pandoc.org/installing.html
+```
 
-   ```
-   pip install -r requirements.txt
-   ```
+---
 
-4. Install FFmpeg (required for audio/video conversions):
-   - Windows: Download from https://ffmpeg.org/download.html and add it to your PATH
-   - macOS: `brew install ffmpeg`
-   - Linux: `apt install ffmpeg` or `yum install ffmpeg`
+## Development
 
-5. Install Pandoc (optional, for advanced document conversions):
-   - Windows: Download from https://pandoc.org/installing.html
-   - macOS: `brew install pandoc`
-   - Linux: `apt install pandoc` o `yum install pandoc`
+Clone the repository and run the provided script to start both servers concurrently:
 
+```bash
+git clone <repo-url>
+cd AllConverter
+pip install -r requirements.txt
+./start-dev.sh
+```
 
+The script installs frontend dependencies on first run, then starts:
 
+- FastAPI backend on `http://localhost:8000`
+- Vite dev server on `http://localhost:5173` (with API proxy)
 
-## HOW TO USE
+Interactive API documentation is available at `http://localhost:8000/docs`.
 
-1. Start the application:
+If you prefer to start the two processes manually:
 
-   ```
-   python app.py
-   ```
+```bash
+# Terminal 1 — backend
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-2. Open your web browser and go to:
+# Terminal 2 — frontend
+cd frontend
+npm install
+npm run dev
+```
 
-   ```
-   http://localhost:5000
-   ```
+---
 
-3. Use the application:
-   - Drag and drop files into the drop area or click "Select Files"
-   - Choose the desired conversion and manipulation options
-   - Click "Convert" to process the files
-   - Download the converted files individually or click "Download All as ZIP"
+## Production build
 
+Build the frontend and start the backend. FastAPI serves the compiled assets directly.
 
+```bash
+cd frontend
+npm run build          # outputs to frontend/dist/
+cd ..
+uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+```
 
+The backend detects `frontend/dist/` at startup and mounts it automatically. No separate static file server or reverse proxy is required for single-host deployments.
 
-## How It Works
+For high-traffic deployments, place a reverse proxy (nginx, Caddy) in front of Uvicorn and configure it to serve `frontend/dist/` directly for asset paths.
 
-The application uses the following technologies:
+---
 
-- Flask: A lightweight web framework for Python
-- Pillow/PIL: Python Imaging Library for image processing
-- pillow-heif: A plugin for Pillow to handle HEIC/HEIF images
-- FFmpeg: For audio and video conversions
-- PyPDF2, python-docx, and other libraries for document handling
-- Pandoc: For advanced document format conversions
-- ThreadPoolExecutor: For parallel file processing
+## Deployment on Render
 
+`render.yaml` is preconfigured. Connect the repository to Render — the build command installs Python and Node dependencies, builds the frontend, and starts Uvicorn.
 
+---
 
-## Supported Formats
+## Project structure
 
-### Images
-- Input: jpg, jpeg, png, gif, bmp, tiff, tif, webp, heic, heif, ico, ppm, pgm, pbm, pnm, avif
-- Output: jpg, jpeg, png, gif, bmp, tiff, tif, webp, ico, pdf, ppm, pgm, pbm, pnm
+```
+AllConverter/
+├── main.py                        # FastAPI application entry point
+├── requirements.txt               # Python dependencies
+├── render.yaml                    # Render.com deployment config
+├── start-dev.sh                   # Development startup script
+│
+├── converters/
+│   ├── base_converter.py          # Abstract base class
+│   ├── converter_factory.py       # MIME-type-based converter routing
+│   ├── image_converter.py         # Pillow-based image conversion
+│   ├── audio_converter.py         # FFmpeg-based audio conversion
+│   ├── video_converter.py         # FFmpeg-based video conversion
+│   └── document_converter.py      # Multi-library document conversion
+│
+├── utils/
+│   └── file_detection.py          # MIME type detection and categorisation
+│
+└── frontend/
+    ├── index.html
+    ├── vite.config.ts
+    ├── tailwind.config.js
+    ├── package.json
+    └── src/
+        ├── App.tsx                # Root component, step-driven state machine
+        ├── index.css              # Tailwind base + CSS design tokens
+        ├── api/client.ts          # Typed Axios API client
+        ├── types/index.ts         # Shared TypeScript types
+        ├── utils/fileUtils.ts     # File category detection, byte formatting
+        └── components/
+            ├── Header.tsx         # Navigation bar with theme toggle
+            ├── DropZone.tsx       # Drag-and-drop upload area
+            ├── FileList.tsx       # Selected files with remove / add-more
+            ├── FormatSelector.tsx # Output format chip grid
+            ├── ConversionOptions.tsx  # Collapsible advanced options panel
+            ├── Progress.tsx       # Animated conversion progress indicator
+            ├── Results.tsx        # Per-file download cards and bulk ZIP
+            └── options/
+                ├── Controls.tsx   # Shared form primitives (Slider, Select, Toggle)
+                ├── ImageOptions.tsx
+                ├── AudioOptions.tsx
+                ├── VideoOptions.tsx
+                └── DocumentOptions.tsx
+```
 
-### Audio
-- Input: mp3, wav, ogg, flac, aac, m4a, wma, aiff, alac, opus, ac3, amr
-- Output: mp3, wav, ogg, flac, aac, m4a, opus
+---
 
-### Video
-- Input: mp4, avi, mov, wmv, flv, mkv, webm, m4v, mpeg, mpg, 3gp, vob, ogv, mts, m2ts
-- Output: mp4, avi, mov, mkv, webm, gif, mp3, ogg
+## API reference
 
-### Documents
-- Input: pdf, doc, docx, odt, txt, rtf, html, htm, md, markdown, csv, json, xml, epub, tex, rst, adoc
-- Output: pdf, docx, odt, txt, rtf, html, md, markdown, csv, json, epub, tex, rst, adoc
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/formats` | Supported input/output formats per category |
+| `POST` | `/api/convert` | Convert one or more files |
+| `GET` | `/api/download/{session}/{file}` | Download a single converted file |
+| `GET` | `/api/download-all/{session}` | Download all session files as ZIP |
+| `DELETE` | `/api/session/{session}` | Delete session and all associated files |
+| `GET` | `/api/history` | List past conversion sessions |
 
+Full request/response schemas are documented in the OpenAPI UI at `/docs`.
 
+### POST /api/convert — form fields
 
-## License
+| Field | Type | Description |
+|---|---|---|
+| `files` | `File[]` | One or more input files (multipart) |
+| `target_format` | `string` | Target extension, e.g. `webp`, `mp3`, `pdf` |
+| `options` | `string` | JSON-encoded conversion options (see below) |
 
-This project is open source, use it how you want to.
+### Conversion options
 
+**Images**
 
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `quality` | `int` | `95` | Output quality (1–100) |
+| `resize` | `[int, int]` | — | Target width and height in pixels |
+| `rotate` | `int` | — | Rotation angle in degrees |
+| `flip` | `"horizontal" \| "vertical"` | — | Mirror axis |
+| `filter` | `string` | — | `blur`, `sharpen`, `grayscale`, `contour`, `emboss`, ... |
 
-## Screenshot
+**Audio**
 
-![All-in-One File Converter](static/images/screenshot.png)
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `bitrate` | `string` | auto | e.g. `128k`, `320k` |
+| `sample_rate` | `int` | auto | e.g. `44100`, `48000` |
+| `channels` | `int` | auto | `1` (mono) or `2` (stereo) |
+| `volume_db` | `float` | — | Volume adjustment in dB |
+| `normalize` | `bool` | `false` | Normalise audio levels |
+| `start_ms` | `int` | — | Trim start position in milliseconds |
+| `end_ms` | `int` | — | Trim end position in milliseconds |
 
+**Video**
 
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `resolution` | `string` | original | e.g. `1920x1080`, `1280x720` |
+| `fps` | `int` | original | Output frame rate |
+| `video_bitrate` | `string` | auto | e.g. `2500k` |
+| `audio_bitrate` | `string` | auto | e.g. `128k` |
+| `codec` | `string` | auto | `libx264`, `libx265`, `libvpx-vp9` |
+| `preset` | `string` | `medium` | Encoding speed preset |
+| `rotation` | `int` | `0` | `90`, `180`, or `270` degrees |
+| `mute` | `bool` | `false` | Strip audio track |
+| `start_sec` | `float` | — | Trim start in seconds |
+| `end_sec` | `float` | — | Trim end in seconds |
 
+**Documents**
+
+| Key | Type | Default | Description |
+|---|---|---|---|
+| `paper_size` | `string` | `A4` | `A4`, `Letter`, `Legal`, `A3` |
+| `font_name` | `string` | `Helvetica` | Font family for PDF output |
+| `font_size` | `int` | `12` | Font size in points |
+| `margin_top` / `_bottom` / `_left` / `_right` | `int` | `20` | Page margins in mm |
+| `include_toc` | `bool` | `false` | Generate table of contents |
+| `encrypt_pdf` | `bool` | `false` | Password-protect the output PDF |
+| `pdf_password` | `string` | — | Password (requires `encrypt_pdf: true`) |
+
+---
+
+## Supported formats
+
+**Images** — input: `jpg jpeg png gif bmp tiff tif webp heic heif ico ppm pgm pbm pnm avif`
+Output: `jpg jpeg png gif bmp tiff tif webp ico pdf ppm pgm pbm pnm`
+
+**Audio** — input: `mp3 wav ogg flac aac m4a wma aiff alac opus ac3 amr`
+Output: `mp3 wav ogg flac aac m4a opus`
+
+**Video** — input: `mp4 avi mov wmv flv mkv webm m4v mpeg mpg 3gp vob ogv mts m2ts`
+Output: `mp4 avi mov mkv webm gif mp3 ogg`
+
+**Documents** — input/output: `pdf doc docx odt txt rtf html htm md markdown csv json xml epub* tex* rst* adoc*`
+Formats marked with `*` require Pandoc.
+
+---
 
 ## Troubleshooting
 
-- If you encounter "libheif not found" errors, you may need to install libheif:
-  - Windows: Use the precompiled binaries provided with pillow-heif
-  - macOS: `brew install libheif`
-  - Linux: `apt-get install libheif-dev` o `yum install libheif-devel`
+**HEIC/HEIF files fail to open**
 
-- For document conversions:
-  - Ensure Pandoc is installed and in the PATH for advanced conversions
-  - For issues with password-protected PDFs, verify the entered password is correct
-  - Some formats may require additional libraries; check the console for specific error messages
+Install the native libheif library:
 
-- If files are not converting, ensure they are valid and supported formats.
+```bash
+# Debian / Ubuntu
+apt-get install libheif-dev
+
+# macOS
+brew install libheif
+```
+
+**Document conversions produce no output**
+
+Verify that Pandoc is installed and on `PATH` for formats that require it (EPUB, LaTeX, RST, AsciiDoc). For DOCX-to-PDF on Linux, `python-docx` generates a basic PDF using ReportLab as a fallback when LibreOffice is not present.
+
+**Large video files time out**
+
+Uvicorn's default request timeout is not set; the limit is determined by any upstream proxy. Adjust proxy read/write timeouts accordingly. For very large files, consider increasing `MAX_FILE_SIZE` in `main.py`.
+
+---
+
+## License
+
+Open source. Use freely.
