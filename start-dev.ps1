@@ -41,7 +41,7 @@ if (-not $uvicornArgs -and $uvicornExe -ne "uvicorn") {
 if (-not (Test-Path "frontend\node_modules")) {
     Write-Host "Installing frontend dependencies..."
     Push-Location frontend
-    npm install
+    cmd /c npm install
     Pop-Location
 }
 
@@ -51,8 +51,9 @@ $backendArgs = $uvicornArgs + @("main:app", "--host", "0.0.0.0", "--port", "8000
 $backend = Start-Process -FilePath $uvicornExe -ArgumentList $backendArgs -PassThru -NoNewWindow
 
 # ── Start Vite ────────────────────────────────────────────────────────────
+# On Windows, npm is a .cmd script so it must be invoked via cmd.exe
 Write-Host "Starting Vite dev server on :5173 ..."
-$frontend = Start-Process -FilePath "npm" -ArgumentList @("run", "dev") -WorkingDirectory "$PWD\frontend" -PassThru -NoNewWindow
+$frontend = Start-Process -FilePath "cmd.exe" -ArgumentList @("/c", "npm run dev") -WorkingDirectory "$PWD\frontend" -PassThru -NoNewWindow
 
 Write-Host ""
 Write-Host "  AllConverter running"
