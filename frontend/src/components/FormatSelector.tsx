@@ -1,10 +1,13 @@
 import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { RefreshCw } from "lucide-react";
 import type { FileCategory, FileItem, SupportedFormats } from "../types";
 import { inferCategory } from "../utils/fileUtils";
 
 interface FormatSelectorProps {
   formats: SupportedFormats | null;
+  formatsError?: boolean;
+  onRetryFormats?: () => void;
   files: FileItem[];
   value: string;
   onChange: (fmt: string) => void;
@@ -26,6 +29,8 @@ const CATEGORY_EMOJI: Record<FileCategory, string> = {
 
 export default function FormatSelector({
   formats,
+  formatsError,
+  onRetryFormats,
   files,
   value,
   onChange,
@@ -42,6 +47,23 @@ export default function FormatSelector({
     if (!formats || !detectedCategory) return [];
     return formats[detectedCategory]?.output ?? [];
   }, [formats, detectedCategory]);
+
+  if (formatsError) {
+    return (
+      <div className="h-24 rounded-2xl border border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center gap-2">
+        <p className="text-sm text-destructive">
+          Could not reach the backend. Is the server running?
+        </p>
+        <button
+          onClick={onRetryFormats}
+          className="flex items-center gap-1.5 text-xs font-medium text-destructive hover:opacity-80 transition-opacity"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   if (!formats) {
     return (

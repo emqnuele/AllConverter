@@ -53,12 +53,17 @@ export default function App() {
   const [session, setSession] = useState<ConversionSession | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Load formats once ──────────────────────────────────────────────────────
-  useEffect(() => {
+  // ── Load formats (with retry support) ─────────────────────────────────────
+  const [formatsError, setFormatsError] = useState(false);
+
+  const loadFormats = useCallback(() => {
+    setFormatsError(false);
     getFormats()
-      .then(setFormats)
-      .catch((e) => console.error("Could not load formats:", e));
+      .then((f) => { setFormats(f); setFormatsError(false); })
+      .catch(() => setFormatsError(true));
   }, []);
+
+  useEffect(() => { loadFormats(); }, [loadFormats]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
   const handleFilesAdded = useCallback((added: FileItem[]) => {
@@ -148,6 +153,8 @@ export default function App() {
 
               <FormatSelector
                 formats={formats}
+                formatsError={formatsError}
+                onRetryFormats={loadFormats}
                 files={files}
                 value={targetFormat}
                 onChange={(fmt) => {
