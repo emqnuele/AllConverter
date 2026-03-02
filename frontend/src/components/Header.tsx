@@ -4,6 +4,7 @@ import { Moon, Sun } from "lucide-react";
 interface HeaderProps {
   theme: "light" | "dark";
   onToggleTheme: () => void;
+  onHome?: () => void;
 }
 
 /* Two overlapping rounded squares: outlined (source) + filled (output) */
@@ -18,22 +19,26 @@ function LogoMark() {
   );
 }
 
-export default function Header({ theme, onToggleTheme }: HeaderProps) {
+export default function Header({ theme, onToggleTheme, onHome }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 dark:border-white/[0.05] bg-background/80 dark:bg-background/60 backdrop-blur-xl">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
 
-        <motion.div
-          className="flex items-center gap-2.5"
+        <motion.button
+          type="button"
+          onClick={onHome}
+          className="flex items-center gap-2.5 cursor-pointer focus:outline-none"
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.97 }}
         >
           <LogoMark />
           <span className="font-semibold text-sm tracking-tight text-foreground/90">
             allconverter
           </span>
-        </motion.div>
+        </motion.button>
 
         <motion.div
           initial={{ opacity: 0, x: 10 }}

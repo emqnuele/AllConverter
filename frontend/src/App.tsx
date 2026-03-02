@@ -8,6 +8,7 @@ import FormatSelector from "./components/FormatSelector";
 import ConversionOptions from "./components/ConversionOptions";
 import Progress from "./components/Progress";
 import Results from "./components/Results";
+import Footer from "./components/Footer";
 import { getFormats, convertFiles } from "./api/client";
 import type {
   FileItem,
@@ -128,7 +129,7 @@ export default function App() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="relative min-h-screen bg-background overflow-x-hidden">
+    <div className="relative min-h-screen bg-background overflow-x-hidden flex flex-col">
 
       {/* Ambient background orbs (dark mode only) */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
@@ -158,9 +159,9 @@ export default function App() {
         />
       </div>
 
-      <Header theme={theme} onToggleTheme={toggleTheme} />
+      <Header theme={theme} onToggleTheme={toggleTheme} onHome={handleReset} />
 
-      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pb-24 pt-14">
+      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pb-24 pt-14 w-full flex-grow">
         <AnimatePresence mode="wait">
 
           {/* ── Step: Upload ───────────────────────────────────────────── */}
@@ -277,6 +278,8 @@ export default function App() {
 
         </AnimatePresence>
       </main>
+
+      <Footer />
     </div>
   );
 }
