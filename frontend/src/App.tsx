@@ -9,7 +9,9 @@ import ConversionOptions from "./components/ConversionOptions";
 import Progress from "./components/Progress";
 import Results from "./components/Results";
 import Footer from "./components/Footer";
+import RecentHistory from "./components/RecentHistory";
 import { getFormats, convertFiles } from "./api/client";
+import { useHistory } from "./hooks/useHistory";
 import type {
   FileItem,
   ConversionSession,
@@ -63,6 +65,7 @@ export default function App() {
   const [session, setSession] = useState<ConversionSession | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [formatsError, setFormatsError] = useState(false);
+  const { entries: historyEntries, addEntry, clearHistory } = useHistory();
 
   const loadFormats = useCallback(() => {
     setFormatsError(false);
@@ -108,6 +111,10 @@ export default function App() {
         targetFormat,
         options as Record<string, unknown>,
         (p) => setProgress(p)
+      );
+      addEntry(
+        files.map((f) => ({ name: f.name, size: f.size })),
+        targetFormat
       );
       setSession(result);
       setStep("results");
@@ -186,6 +193,7 @@ export default function App() {
                 </motion.p>
               </div>
               <DropZone onFilesSelected={handleFilesAdded} />
+              <RecentHistory entries={historyEntries} onClear={clearHistory} />
             </motion.div>
           )}
 
