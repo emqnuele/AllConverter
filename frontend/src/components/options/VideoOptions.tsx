@@ -1,5 +1,5 @@
 import type { ConversionOptions, VideoOptions as VOpts } from "../../types";
-import { Field, Row, Select, Toggle } from "./Controls";
+import { Field, Row, Select, Toggle, NumberInput } from "./Controls";
 
 interface Props {
   value: ConversionOptions;
@@ -131,29 +131,25 @@ export default function VideoOptions({ value, onChange, targetFormat }: Props) {
 
       <Row>
         <Field label="Start (sec)">
-          <input
-            type="number"
+          <NumberInput
             min={0}
             step={0.1}
             placeholder="0"
             value={o.start_sec ?? ""}
-            onChange={(e) =>
-              set({ start_sec: e.target.value ? parseFloat(e.target.value) : undefined })
+            onChange={(v) =>
+              set({ start_sec: v ? parseFloat(v) : undefined })
             }
-            className="input-field"
           />
         </Field>
         <Field label="End (sec)">
-          <input
-            type="number"
+          <NumberInput
             min={0}
             step={0.1}
             placeholder="end"
             value={o.end_sec ?? ""}
-            onChange={(e) =>
-              set({ end_sec: e.target.value ? parseFloat(e.target.value) : undefined })
+            onChange={(v) =>
+              set({ end_sec: v ? parseFloat(v) : undefined })
             }
-            className="input-field"
           />
         </Field>
       </Row>

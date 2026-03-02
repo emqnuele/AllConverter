@@ -62,7 +62,7 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
       transition={{ duration: 0.2 }}
       className="relative flex flex-col items-center justify-center w-full rounded-3xl cursor-pointer select-none overflow-hidden"
       style={{
-        minHeight: 280,
+        minHeight: 380,
         background: isDragging
           ? "hsl(var(--accent) / 0.5)"
           : undefined,
@@ -101,12 +101,12 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
             <motion.div
               animate={{ y: [0, -10, 0] }}
               transition={{ repeat: Infinity, duration: 0.75, ease: "easeInOut" }}
-              className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              className="w-20 h-20 rounded-3xl flex items-center justify-center"
               style={{ background: "hsl(var(--primary) / 0.18)" }}
             >
-              <Upload className="w-8 h-8 text-primary" />
+              <Upload className="w-10 h-10 text-primary" />
             </motion.div>
-            <p className="text-primary font-medium text-sm tracking-tight">
+            <p className="text-primary font-medium text-base tracking-tight">
               Release to add files
             </p>
           </motion.div>
@@ -117,20 +117,20 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.25 }}
-            className="flex flex-col items-center gap-5 pointer-events-none px-8 text-center"
+            className="flex flex-col items-center gap-6 pointer-events-none px-8 text-center"
           >
             <motion.div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center dark:bg-white/[0.05] bg-muted"
+              className="w-20 h-20 rounded-3xl flex items-center justify-center dark:bg-white/[0.05] bg-muted"
               whileHover={{ scale: 1.05 }}
             >
-              <Upload className="w-7 h-7 text-muted-foreground" />
+              <Upload className="w-9 h-9 text-muted-foreground" />
             </motion.div>
 
-            <div className="space-y-1">
-              <p className="font-medium text-sm">
+            <div className="space-y-1.5">
+              <p className="font-medium text-base">
                 Drag &amp; drop your files here
               </p>
-              <p className="text-muted-foreground text-xs">
+              <p className="text-muted-foreground text-sm">
                 or click to browse from your computer
               </p>
             </div>
@@ -142,14 +142,14 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.05 + i * 0.05 }}
-                  className="px-3 py-1 rounded-full dark:bg-white/[0.05] bg-muted text-muted-foreground text-xs font-medium"
+                  className="px-4 py-1.5 rounded-full dark:bg-white/[0.05] bg-muted text-muted-foreground text-sm font-medium"
                 >
                   {cat}
                 </motion.span>
               ))}
             </div>
 
-            <p className="text-muted-foreground/50 text-xs">
+            <p className="text-muted-foreground/50 text-sm">
               Up to 500 MB per file
             </p>
           </motion.div>

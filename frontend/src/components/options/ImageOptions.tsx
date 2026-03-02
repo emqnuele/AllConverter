@@ -1,5 +1,5 @@
 import type { ConversionOptions, ImageOptions as IOpts } from "../../types";
-import { Field, Row, Select, Slider, Toggle } from "./Controls";
+import { Field, Row, Select, Slider, Toggle, NumberInput } from "./Controls";
 
 interface Props {
   value: ConversionOptions;
@@ -29,35 +29,31 @@ export default function ImageOptions({ value, onChange }: Props) {
 
       <Row>
         <Field label="Width (px)">
-          <input
-            type="number"
+          <NumberInput
             min={1}
             placeholder="auto"
             value={(o.resize as [number, number])?.[0] ?? ""}
-            onChange={(e) => {
-              const w = e.target.value ? parseInt(e.target.value) : undefined;
+            onChange={(v) => {
+              const w = v ? parseInt(v) : undefined;
               const cur = Array.isArray(o.resize)
                 ? (o.resize as [number, number])
                 : [undefined, undefined];
               upd({ resize: w !== undefined ? [w, cur[1] ?? 0] : undefined });
             }}
-            className="input-field"
           />
         </Field>
         <Field label="Height (px)">
-          <input
-            type="number"
+          <NumberInput
             min={1}
             placeholder="auto"
             value={(o.resize as [number, number])?.[1] ?? ""}
-            onChange={(e) => {
-              const h = e.target.value ? parseInt(e.target.value) : undefined;
+            onChange={(v) => {
+              const h = v ? parseInt(v) : undefined;
               const cur = Array.isArray(o.resize)
                 ? (o.resize as [number, number])
                 : [undefined, undefined];
               upd({ resize: h !== undefined ? [cur[0] ?? 0, h] : undefined });
             }}
-            className="input-field"
           />
         </Field>
       </Row>

@@ -160,15 +160,15 @@ export default function App() {
 
       <Header theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 pb-20 pt-8">
+      <main className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pb-24 pt-14">
         <AnimatePresence mode="wait">
 
           {/* ── Step: Upload ───────────────────────────────────────────── */}
           {step === "upload" && (
             <motion.div key="upload" {...pageVariants}>
-              <div className="text-center mb-10">
+              <div className="text-center mb-12">
                 <motion.h1
-                  className="text-3xl sm:text-4xl font-semibold tracking-tight mb-3 text-gradient"
+                  className="text-4xl sm:text-5xl font-semibold tracking-tight mb-4 text-gradient"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1, duration: 0.5 }}
@@ -176,7 +176,7 @@ export default function App() {
                   Convert anything
                 </motion.h1>
                 <motion.p
-                  className="text-muted-foreground text-sm"
+                  className="text-muted-foreground text-base"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.22, duration: 0.4 }}

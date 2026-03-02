@@ -1,5 +1,5 @@
 import type { ConversionOptions, AudioOptions as AOpts } from "../../types";
-import { Field, Row, Select, Slider, Toggle } from "./Controls";
+import { Field, Row, Select, Slider, Toggle, NumberInput } from "./Controls";
 
 interface Props {
   value: ConversionOptions;
@@ -61,17 +61,13 @@ export default function AudioOptions({ value, onChange }: Props) {
           />
         </Field>
         <Field label="Volume (dB)">
-          <input
-            type="number"
-            step="0.5"
+          <NumberInput
+            step={0.5}
             placeholder="0"
             value={o.volume_db ?? ""}
-            onChange={(e) =>
-              set({
-                volume_db: e.target.value ? parseFloat(e.target.value) : undefined,
-              })
+            onChange={(v) =>
+              set({ volume_db: v ? parseFloat(v) : undefined })
             }
-            className="input-field"
           />
         </Field>
       </Row>
@@ -84,27 +80,23 @@ export default function AudioOptions({ value, onChange }: Props) {
 
       <Row>
         <Field label="Start (ms)">
-          <input
-            type="number"
+          <NumberInput
             min={0}
             placeholder="0"
             value={o.start_ms ?? ""}
-            onChange={(e) =>
-              set({ start_ms: e.target.value ? parseInt(e.target.value) : undefined })
+            onChange={(v) =>
+              set({ start_ms: v ? parseInt(v) : undefined })
             }
-            className="input-field"
           />
         </Field>
         <Field label="End (ms)">
-          <input
-            type="number"
+          <NumberInput
             min={0}
             placeholder="end"
             value={o.end_ms ?? ""}
-            onChange={(e) =>
-              set({ end_ms: e.target.value ? parseInt(e.target.value) : undefined })
+            onChange={(v) =>
+              set({ end_ms: v ? parseInt(v) : undefined })
             }
-            className="input-field"
           />
         </Field>
       </Row>

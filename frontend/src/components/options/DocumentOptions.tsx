@@ -1,5 +1,5 @@
 import type { ConversionOptions, DocumentOptions as DOpts } from "../../types";
-import { Field, Row, Select, Toggle } from "./Controls";
+import { Field, Row, Select, Toggle, NumberInput } from "./Controls";
 import { AnimatePresence, motion } from "framer-motion";
 
 interface Props {
@@ -51,27 +51,23 @@ export default function DocumentOptions({ value, onChange, targetFormat }: Props
 
           <Row>
             <Field label="Font size">
-              <input
-                type="number"
+              <NumberInput
                 min={6}
                 max={72}
                 value={o.font_size ?? 12}
-                onChange={(e) => set({ font_size: parseInt(e.target.value) })}
-                className="input-field"
+                onChange={(v) => set({ font_size: v ? parseInt(v) : 12 })}
               />
             </Field>
             <Field label="Margins (mm)">
-              <input
-                type="number"
+              <NumberInput
                 min={0}
                 max={100}
                 placeholder="20"
                 value={o.margin_top ?? ""}
-                onChange={(e) => {
-                  const m = e.target.value ? parseInt(e.target.value) : undefined;
+                onChange={(v) => {
+                  const m = v ? parseInt(v) : undefined;
                   set({ margin_top: m, margin_bottom: m, margin_left: m, margin_right: m });
                 }}
-                className="input-field"
               />
             </Field>
           </Row>
