@@ -48,7 +48,7 @@ trap "kill $BACKEND_PID $FRONTEND_PID 2>/dev/null; exit" INT TERM
 echo ""
 echo "  AllConverter running"
 echo "  Frontend : http://localhost:5173"
-echo "  API docs : http://localhost:8000/docs"
+echo "  API docs : http://localhost:8000/api/docs"
 echo ""
 echo "  Press Ctrl+C to stop"
 echo ""

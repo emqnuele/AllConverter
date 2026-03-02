@@ -12,7 +12,7 @@ $ErrorActionPreference = "Stop"
 $uvicornArgs = $null
 
 if (Get-Command uv -ErrorAction SilentlyContinue) {
-    $test = uv run uvicorn --version 2>&1
+    uv run uvicorn --version 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         $uvicornArgs = @("run", "uvicorn")
         $uvicornExe  = "uv"
@@ -24,7 +24,7 @@ if (-not $uvicornArgs) {
         $uvicornExe  = "uvicorn"
         $uvicornArgs = @()
     } elseif (Get-Command python -ErrorAction SilentlyContinue) {
-        $test = python -m uvicorn --version 2>&1
+        python -m uvicorn --version 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
             $uvicornExe  = "python"
             $uvicornArgs = @("-m", "uvicorn")
@@ -58,7 +58,7 @@ $frontend = Start-Process -FilePath "cmd.exe" -ArgumentList @("/c", "npm run dev
 Write-Host ""
 Write-Host "  AllConverter running"
 Write-Host "  Frontend : http://localhost:5173"
-Write-Host "  API docs : http://localhost:8000/docs"
+Write-Host "  API docs : http://localhost:8000/api/docs"
 Write-Host ""
 Write-Host "  Press Ctrl+C to stop"
 Write-Host ""

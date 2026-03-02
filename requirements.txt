@@ -1,32 +1,35 @@
-# ── Web framework ────────────────────────────────────────────────────────────
+# web framerork and utilities
 fastapi
 uvicorn[standard]
 python-multipart
 aiofiles
+gunicorn
 
-# ── Image processing ─────────────────────────────────────────────────────────
+# image processing
 pillow
 pillow-heif
 
-# ── Audio / Video ─────────────────────────────────────────────────────────────
-ffmpeg-python
+# audio/video processing
 static-ffmpeg
 
-# ── Documents ────────────────────────────────────────────────────────────────
+# document processing
 PyPDF2>=3.0.0
 python-docx
-docx2pdf
+pdf2docx
 markdown
 html2text
 beautifulsoup4
 openpyxl
 python-pptx
 reportlab
+weasyprint
 
-# ── Utilities ────────────────────────────────────────────────────────────────
-tqdm
-werkzeug
+# file type detection
 python-magic-bin; sys_platform == "win32"
+python-magic; sys_platform != "win32"
 
-# ── Production ───────────────────────────────────────────────────────────────
-gunicorn
+# data validation
+pydantic>=2.0
+
+# logging/utilities
+werkzeug
