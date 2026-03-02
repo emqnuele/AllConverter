@@ -18,31 +18,19 @@ It's not meant to be a product or anything production-grade. Take it as what it 
 | Frontend | Vite 5 / React 18 / TypeScript |
 | Styling | Tailwind CSS 3 / CSS custom properties |
 | Animations | Framer Motion 11 |
-| Image processing | Pillow / pillow-heif |
-| Audio / Video | FFmpeg via ffmpeg-python |
-| Documents | PyPDF2, python-docx, ReportLab, Pandoc (optional) |
+| Image processing | Pillow, pillow-heif, PyMuPDF, cairosvg, svglib |
+| Audio / Video | FFmpeg (bundled via static-ffmpeg) |
+| Documents | pypdf ≥ 4, python-docx, pdf2docx, ReportLab, WeasyPrint, openpyxl, python-pptx, LibreOffice (optional), Pandoc (optional) |
 
 ---
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.13+
 - Node.js 18+
-- FFmpeg on `PATH`
-- Pandoc (optional, only needed for EPUB, LaTeX, RST, AsciiDoc conversions)
-
-### Installing FFmpeg
-
-```bash
-# Debian / Ubuntu
-apt install ffmpeg
-
-# macOS
-brew install ffmpeg
-
-# Windows
-# Download from https://ffmpeg.org/download.html and add to PATH
-```
+- FFmpeg — **not required on `PATH`** by default; the app bundles it automatically via `static-ffmpeg`. Set `USE_STATIC_FFMPEG=false` in `.env` if you prefer to manage your own FFmpeg installation.
+- Pandoc (optional, enables EPUB, LaTeX, RST, AsciiDoc, Org and ODS conversions)
+- LibreOffice (optional, improves DOCX/ODT/PPTX → PDF quality)
 
 ### Installing Pandoc (optional)
 
@@ -55,6 +43,19 @@ brew install pandoc
 
 # Windows
 # Download from https://pandoc.org/installing.html
+```
+
+### Installing LibreOffice (optional)
+
+```bash
+# Debian / Ubuntu
+apt install libreoffice
+
+# macOS
+brew install --cask libreoffice
+
+# Windows
+# Download from https://www.libreoffice.org/download/download/
 ```
 
 ---
@@ -86,7 +87,6 @@ Both scripts install frontend deps on first run, then start:
 - FastAPI backend at `http://localhost:8000`
 - Vite dev server at `http://localhost:5173` (proxies `/api` to the backend)
 
-Interactive API docs at `http://localhost:8000/docs`.
 
 **Manual startup**
 
@@ -124,16 +124,26 @@ AllConverter/
 ├── start-dev.sh
 ├── start-dev.ps1
 │
-├── converters/
-│   ├── base_converter.py
-│   ├── converter_factory.py
-│   ├── image_converter.py
-│   ├── audio_converter.py
-│   ├── video_converter.py
-│   └── document_converter.py
-│
-├── utils/
-│   └── file_detection.py
+├── app/
+│   ├── config.py
+│   ├── models.py
+│   ├── ratelimit.py
+│   ├── converters/
+│   │   ├── _ffmpeg.py
+│   │   ├── base.py
+│   │   ├── factory.py
+│   │   ├── image.py
+│   │   ├── audio.py
+│   │   ├── video.py
+│   │   └── document.py
+│   ├── routes/
+│   │   ├── convert.py
+│   │   ├── download.py
+│   │   └── formats.py
+│   └── utils/
+│       ├── cleanup.py
+│       ├── detection.py
+│       └── options.py
 │
 └── frontend/
     ├── index.html
@@ -177,28 +187,43 @@ AllConverter/
 | `GET` | `/api/download-all/{session}` | Download all session files as ZIP |
 | `DELETE` | `/api/session/{session}` | Delete session and associated files |
 
-Full schemas at `/docs`.
 
 ### POST /api/convert
 
 | Field | Type | Description |
 |---|---|---|
-| `files` | `File[]` | One or more input files (multipart) |
+| `files` | `File[]` | One or more input files (multipart), up to 20 files / 300 MB each |
 | `target_format` | `string` | Target extension, e.g. `webp`, `mp3`, `pdf` |
 | `options` | `string` | JSON-encoded conversion options |
+
+**Rate limit:** 20 requests/minute per IP.
+
+Download endpoints require the `token` query parameter returned in the `/api/convert` response.
 
 ---
 
 ## Supported formats
 
-**Images** — `jpg jpeg png gif bmp tiff webp heic heif ico ppm pgm pbm avif` to `jpg png gif bmp tiff webp ico pdf ppm`
+**Images**
+- Input: `jpg jpeg png gif bmp tiff tif webp heic heif ico ppm pgm pbm pnm avif svg`¹
+- Output: `jpg jpeg png gif bmp tiff tif webp ico pdf ppm pgm pbm pnm avif`
 
-**Audio** — `mp3 wav ogg flac aac m4a wma aiff opus ac3 amr` to `mp3 wav ogg flac aac m4a opus`
+**Audio**
+- Input: `mp3 wav ogg flac aac m4a wma aiff alac opus ac3 amr`
+- Output: `mp3 wav ogg flac aac m4a opus`
 
-**Video** — `mp4 avi mov wmv flv mkv webm m4v mpeg 3gp ogv mts` to `mp4 avi mov mkv webm gif mp3 ogg`
+**Video**
+- Input: `mp4 avi mov wmv flv mkv webm m4v mpeg mpg 3gp vob ogv mts m2ts`
+- Output: `mp4 avi mov mkv webm flv gif mp3 ogg aac flac wav`
 
-**Documents** — `pdf doc docx odt txt rtf html md csv json xml epub* tex* rst* adoc*`
-Formats marked with `*` require Pandoc.
+**Documents**
+- Input: `pdf docx doc odt txt rtf html htm md csv json xml xlsx xls`² `pptx`³ `epub tex org rst adoc ods`⁴
+- Output: `pdf docx txt html md csv json xml xlsx`² `epub tex org rst odt rtf`⁴
+
+¹ SVG input requires at least one of: cairosvg, svglib, or PyMuPDF.  
+² `xlsx`/`xls` input and `xlsx` output require openpyxl.  
+³ `pptx` input requires python-pptx or LibreOffice.  
+⁴ `epub`, `tex`, `org`, `rst`, `adoc`, `ods` require Pandoc.
 
 ---
 
@@ -216,11 +241,12 @@ brew install libheif
 
 **Document conversions produce no output**
 
-Make sure Pandoc is on `PATH` for formats that need it (EPUB, LaTeX, RST, AsciiDoc).
+Make sure Pandoc is on `PATH` for formats that need it (EPUB, LaTeX, RST, AsciiDoc, Org).
+For better DOCX/ODT/PPTX → PDF quality, install LibreOffice.
 
 **Large video files time out**
 
-If you have a reverse proxy in front, increase its read/write timeouts. For very large files, check `MAX_FILE_SIZE` in `main.py`.
+If you have a reverse proxy in front, increase its read/write timeouts. For very large files, set `MAX_FILE_SIZE` in a `.env` file (default: 300 MB).
 
 ---
 
