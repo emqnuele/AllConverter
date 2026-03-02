@@ -4,6 +4,7 @@ uvicorn[standard]
 python-multipart
 aiofiles
 gunicorn
+slowapi
 
 # image processing
 pillow

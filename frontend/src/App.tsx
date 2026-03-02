@@ -10,6 +10,7 @@ import Progress from "./components/Progress";
 import Results from "./components/Results";
 import Footer from "./components/Footer";
 import RecentHistory from "./components/RecentHistory";
+import SeoContent from "./components/SeoContent";
 import { getFormats, convertFiles } from "./api/client";
 import { useHistory } from "./hooks/useHistory";
 import { MAX_FILE_SIZE } from "./utils/fileUtils";
@@ -195,6 +196,7 @@ export default function App() {
               </div>
               <DropZone onFilesSelected={handleFilesAdded} />
               <RecentHistory entries={historyEntries} onClear={clearHistory} />
+              <SeoContent />
             </motion.div>
           )}
 

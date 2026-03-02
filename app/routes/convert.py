@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import logging
+import re
+import secrets
 import shutil
 import uuid
 from concurrent.futures import ThreadPoolExecutor
@@ -10,13 +13,16 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 import aiofiles
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 
 from app.config import settings
 from app.converters.factory import ConverterFactory, _EXT_CAT, _FACTORIES
 from app.models import ConversionResult, ConversionSession
+from app.ratelimit import limiter
 from app.utils.detection import FileTypeDetector
 from app.utils.options import normalize_options
+
+_FORMAT_RE = re.compile(r"^[a-z0-9]+$")
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -65,9 +71,9 @@ def _process_file(
             }
         return {"success": False, "error": "Conversion produced no output file"}
 
-    except Exception as exc:
+    except Exception:
         logger.exception("Unhandled error in conversion worker")
-        return {"success": False, "error": str(exc)}
+        return {"success": False, "error": "Conversion failed due to an internal error"}
 
 
 
@@ -76,13 +82,20 @@ def _process_file(
     response_model=ConversionSession,
     summary="Convert one or more files to a target format",
 )
+@limiter.limit("20/minute")
 async def convert_files(
+    request: Request,
     files: List[UploadFile] = File(..., description="Files to convert"),
     target_format: str = Form(..., description="Target format extension (e.g. 'mp4')"),
     options: str = Form(default="{}", description="JSON-encoded conversion options"),
 ) -> dict:
     target_format = target_format.strip().lower().lstrip(".")
 
+    if not _FORMAT_RE.match(target_format):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid target_format: only lowercase letters and digits are allowed.",
+        )
 
     try:
         opts: Dict[str, Any] = json.loads(options) if options else {}
@@ -92,17 +105,27 @@ async def convert_files(
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
 
+    if len(files) > settings.MAX_FILES_PER_REQUEST:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Too many files: max {settings.MAX_FILES_PER_REQUEST} per request.",
+        )
+
 
     session_id = uuid.uuid4().hex
     session_dir = settings.CONVERTED_DIR / session_id
     session_dir.mkdir(parents=True, exist_ok=True)
+    download_token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(download_token.encode()).hexdigest()
 
     saved: List[Tuple[Path, str]] = []
+    opened_paths: List[Path] = []
 
     try:
         for uf in files:
             filename = Path(uf.filename or "upload").name or "upload"
             dest = settings.UPLOAD_DIR / f"{session_id}_{filename}"
+            opened_paths.append(dest)
             src_ext = Path(filename).suffix.lstrip(".").lower()
             src_cat = _EXT_CAT.get(src_ext)
             if src_cat and target_format not in _CAT_OUTPUTS.get(src_cat, frozenset()):
@@ -173,19 +196,22 @@ async def convert_files(
             results=results,
             total=len(results),
             successful=sum(1 for r in results if r.success),
+            download_token=download_token,
         )
-        async with aiofiles.open(session_dir / "session_info.json", "w") as fh:
-            await fh.write(session.model_dump_json(indent=2))
 
+        storage = session.model_dump()
+        storage["download_token"] = token_hash
+        async with aiofiles.open(session_dir / "session_info.json", "w") as fh:
+            await fh.write(json.dumps(storage, indent=2))
         return session.model_dump()
 
     except HTTPException:
         shutil.rmtree(session_dir, ignore_errors=True)
         raise
-    except Exception as exc:
+    except Exception:
         shutil.rmtree(session_dir, ignore_errors=True)
         logger.exception("Batch conversion failed")
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(status_code=500, detail="Internal conversion error") from None
     finally:
-        for src_path, _ in saved:
-            src_path.unlink(missing_ok=True)
+        for p in opened_paths:
+            p.unlink(missing_ok=True)

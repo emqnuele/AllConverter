@@ -23,13 +23,18 @@ class Settings(BaseSettings):
     # limits
     MAX_FILE_SIZE: int = 300 * 1024 * 1024   # 300 MB
     MAX_WORKERS: int = 4
+    MAX_FILES_PER_REQUEST: int = 20
 
     SESSION_TTL_HOURS: float = 6.0
     CLEANUP_INTERVAL_SECONDS: float = 3600.0
 
-    # CORS — override with a comma-separated string in .env, e.g.:
-    #   CORS_ORIGINS=https://myapp.com,https://www.myapp.com
-    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ORIGINS: List[str] = []
+    TRUST_PROXY_HEADERS: bool = False
+    # internal-only API protection.
+    # when True, every /api/ request must carry the header.
+    # requests without it will receive 403.
+    REQUIRE_INTERNAL_HEADER: bool = True
+    INTERNAL_HEADER_VALUE: str = "AllConverter"
 
     # logging
     LOG_FORMAT: str = "%(asctime)s │ %(levelname)-8s │ %(name)s │ %(message)s"

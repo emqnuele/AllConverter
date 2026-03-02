@@ -30,3 +30,7 @@ class ConversionSession(BaseModel):
     results: List[ConversionResult]
     total: int = Field(..., description="Number of files submitted")
     successful: int = Field(..., description="Number of files converted successfully")
+    download_token: Optional[str] = Field(
+        default=None,
+        description="One-time secret required for all download/delete calls on this session",
+    )

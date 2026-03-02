@@ -10,7 +10,7 @@ interface ResultsProps {
 }
 
 export default function Results({ session, onConvertMore }: ResultsProps) {
-  const { session_id, results, successful, total } = session;
+  const { session_id, results, successful, total, download_token } = session;
   const allSuccess = successful === total;
 
   return (
@@ -97,7 +97,7 @@ export default function Results({ session, onConvertMore }: ResultsProps) {
               {/* Download */}
               {r.success && (
                 <motion.a
-                  href={downloadUrl(session_id, r.output_filename)}
+                  href={downloadUrl(session_id, r.output_filename, download_token)}
                   download={r.output_filename}
                   whileHover={{ scale: 1.06 }}
                   whileTap={{ scale: 0.94 }}
@@ -121,7 +121,7 @@ export default function Results({ session, onConvertMore }: ResultsProps) {
       >
         {successful > 1 && (
           <motion.a
-            href={downloadAllUrl(session_id)}
+            href={downloadAllUrl(session_id, download_token)}
             download
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}

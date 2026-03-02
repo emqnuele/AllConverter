@@ -1,7 +1,13 @@
 import axios from "axios";
 import type { SupportedFormats, ConversionSession } from "../types";
 
-const http = axios.create({ baseURL: "/api" });
+
+const http = axios.create({
+  baseURL: "/api",
+  headers: {
+    "X-Requested-With": "AllConverter",
+  },
+});
 
 export async function getFormats(): Promise<SupportedFormats> {
   const { data } = await http.get<SupportedFormats>("/formats");
@@ -29,14 +35,17 @@ export async function convertFiles(
   return data;
 }
 
-export function downloadUrl(sessionId: string, filename: string): string {
-  return `/api/download/${sessionId}/${encodeURIComponent(filename)}`;
+export function downloadUrl(sessionId: string, filename: string, token?: string): string {
+  const base = `/api/download/${sessionId}/${encodeURIComponent(filename)}`;
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base;
 }
 
-export function downloadAllUrl(sessionId: string): string {
-  return `/api/download-all/${sessionId}`;
+export function downloadAllUrl(sessionId: string, token?: string): string {
+  const base = `/api/download-all/${sessionId}`;
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base;
 }
 
-export async function clearSession(sessionId: string): Promise<void> {
-  await http.delete(`/session/${sessionId}`);
+export async function clearSession(sessionId: string, token?: string): Promise<void> {
+  const params = token ? `?token=${encodeURIComponent(token)}` : "";
+  await http.delete(`/session/${sessionId}${params}`);
 }

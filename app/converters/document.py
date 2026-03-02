@@ -4,6 +4,7 @@ import csv
 import json
 import logging
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -89,6 +90,17 @@ def _check_bin(name: str) -> bool:
 
 _PANDOC = _check_bin("pandoc")
 _LIBREOFFICE = _check_bin("libreoffice") or _check_bin("soffice")
+
+def _weasy_safe_fetcher(url: str, **kwargs):
+    """URL fetcher for WeasyPrint that rejects any non-local scheme."""
+    from urllib.parse import urlparse
+    from weasyprint import default_url_fetcher
+    scheme = urlparse(url).scheme.lower()
+    if scheme not in ("file", "data", ""):
+        raise ValueError(
+            f"[Security] WeasyPrint blocked external URL scheme '{scheme}': {url}"
+        )
+    return default_url_fetcher(url, **kwargs)
 
 
 class DocumentConverter(BaseConverter):
@@ -177,8 +189,12 @@ class DocumentConverter(BaseConverter):
     def _libreoffice_to_pdf(self, inp: str, out: str) -> bool:
         out_dir = str(Path(out).parent)
         bin_name = "libreoffice" if shutil.which("libreoffice") else "soffice"
-        cmd = [bin_name, "--headless", "--convert-to", "pdf",
-               "--outdir", out_dir, inp]
+
+        cmd = [
+            bin_name, "--headless", "--norestore",
+            "--nofirststartwizard", "--nologo",
+            "--convert-to", "pdf", "--outdir", out_dir, inp,
+        ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         if result.returncode != 0:
             logger.error("LibreOffice error: %s", result.stderr)
@@ -212,19 +228,41 @@ class DocumentConverter(BaseConverter):
             css = self._default_css(opts)
             html = f"<!doctype html><html><head><meta charset='utf-8'><style>{css}</style></head><body>{html}</body></html>"
 
-        WeasyHTML(string=html, base_url=str(Path(inp).parent)).write_pdf(out)
+        WeasyHTML(
+            string=html,
+            base_url=str(Path(inp).parent),
+            url_fetcher=_weasy_safe_fetcher,
+        ).write_pdf(out)
         return Path(out).exists()
 
     @staticmethod
     def _default_css(opts: dict) -> str:
-        paper = opts.get("paper_size", "A4").lower()
+        _ALLOWED_PAPERS = {"a4", "a3", "a5", "letter", "legal", "executive"}
+        _SAFE_FONT_RE = re.compile(r"[^A-Za-z0-9 ,_'\-.]")  # strip CSS metacharacters
+
+        paper_raw = str(opts.get("paper_size", "A4")).lower()
+        paper = paper_raw if paper_raw in _ALLOWED_PAPERS else "a4"
+
         margin = opts.get("margins", {})
-        mt = margin.get("top", 20)
-        mr = margin.get("right", 20)
-        mb = margin.get("bottom", 20)
-        ml = margin.get("left", 20)
-        font = opts.get("font", "Arial, sans-serif")
-        font_size = opts.get("font_size", 12)
+        def _mm(v: Any, default: int = 20) -> int:
+            try:
+                m = int(v)
+                return max(0, min(100, m))
+            except (TypeError, ValueError):
+                return default
+        mt = _mm(margin.get("top"))
+        mr = _mm(margin.get("right"))
+        mb = _mm(margin.get("bottom"))
+        ml = _mm(margin.get("left"))
+
+        font_raw = str(opts.get("font", "Arial, sans-serif"))
+        font = _SAFE_FONT_RE.sub("", font_raw) or "Arial, sans-serif"
+
+        try:
+            font_size = max(6, min(72, int(opts.get("font_size", 12))))
+        except (TypeError, ValueError):
+            font_size = 12
+
         return (
             f"@page {{ size: {paper}; margin: {mt}mm {mr}mm {mb}mm {ml}mm; }}"
             f"body {{ font-family: {font}; font-size: {font_size}pt; line-height: 1.5; }}"
@@ -283,7 +321,11 @@ class DocumentConverter(BaseConverter):
     def _libreoffice_to_format(self, inp: str, out: str, ext: str) -> bool:
         out_dir = str(Path(out).parent)
         bin_name = "libreoffice" if shutil.which("libreoffice") else "soffice"
-        cmd = [bin_name, "--headless", "--convert-to", ext, "--outdir", out_dir, inp]
+        cmd = [
+            bin_name, "--headless", "--norestore",
+            "--nofirststartwizard", "--nologo",
+            "--convert-to", ext, "--outdir", out_dir, inp,
+        ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         expected = Path(out_dir) / (Path(inp).stem + f".{ext}")
         if expected.exists() and str(expected) != out:
@@ -534,7 +576,8 @@ class DocumentConverter(BaseConverter):
     def _pandoc(self, inp: str, out: str, opts: dict) -> bool:
         if not _PANDOC:
             return False
-        cmd = ["pandoc", inp, "-o", out, "--standalone"]
+
+        cmd = ["pandoc", inp, "-o", out, "--standalone", "--sandbox"]
         if opts.get("toc"):
             cmd.append("--toc")
         if opts.get("paper_size"):

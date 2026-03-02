@@ -93,11 +93,6 @@ class FileTypeDetector:
 
     @staticmethod
     def get_mime_type(file_path: str) -> str:
-        ext = Path(file_path).suffix.lstrip(".").lower()
-
-        if ext in _EXT_TO_MIME:
-            return _EXT_TO_MIME[ext]
-
         if _MAGIC_AVAILABLE:
             try:
                 mime = _magic.from_file(file_path, mime=True)
@@ -105,6 +100,10 @@ class FileTypeDetector:
                     return mime
             except Exception as exc:
                 logger.debug("python-magic failed for %s: %s", file_path, exc)
+
+        ext = Path(file_path).suffix.lstrip(".").lower()
+        if ext in _EXT_TO_MIME:
+            return _EXT_TO_MIME[ext]
 
         guessed, _ = mimetypes.guess_type(file_path)
         if guessed:

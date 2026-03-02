@@ -1,6 +1,9 @@
 from __future__ import annotations
 import io
 import logging
+import os
+import re as _re
+import tempfile
 from pathlib import Path
 from typing import Any, List, Optional, Tuple, Union
 from PIL import Image, ImageFilter, ImageOps
@@ -36,6 +39,35 @@ from .base import BaseConverter
 
 logger = logging.getLogger(__name__)
 
+_SVG_SCRIPT_RE = _re.compile(r"<script[\s\S]*?</script\s*>", _re.IGNORECASE)
+_SVG_ON_ATTR_RE = _re.compile(r"\s+on\w+\s*=\s*([\"']).*?\1", _re.IGNORECASE | _re.DOTALL)
+_SVG_JS_HREF_RE = _re.compile(
+    r"\s+(?:xlink:)?href\s*=\s*([\"'])\s*javascript:[^\1]*?\1",
+    _re.IGNORECASE,
+)
+
+
+def _sanitize_svg_file(svg_path: str) -> str:
+    """Return path to a sanitized copy of the SVG (temp file).
+
+    Strips <script> elements, on* event attributes, and javascript: hrefs.
+    The caller is responsible for deleting the returned temp file.
+    """
+    with open(svg_path, "r", encoding="utf-8", errors="replace") as fh:
+        content = fh.read()
+    content = _SVG_SCRIPT_RE.sub("", content)
+    content = _SVG_ON_ATTR_RE.sub("", content)
+    content = _SVG_JS_HREF_RE.sub("", content)
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".svg")
+    try:
+        os.close(tmp_fd)
+        with open(tmp_path, "w", encoding="utf-8") as fh:
+            fh.write(content)
+        return tmp_path
+    except Exception:
+        Path(tmp_path).unlink(missing_ok=True)
+        raise
+
 _NO_ALPHA = {"jpeg", "jpg", "bmp", "ppm", "pgm", "pbm", "pnm", "ico", "gif"}
 _PIL_FORMAT = {
     "jpg": "JPEG",
@@ -64,28 +96,33 @@ class ImageConverter(BaseConverter):
 
     @staticmethod
     def _rasterize_svg(input_path: str) -> Image.Image:
-        if _PYMUPDF:
-            doc = _fitz.open(input_path)
-            page = doc[0]
-            mat = _fitz.Matrix(3, 3)
-            pix = page.get_pixmap(matrix=mat, alpha=True)
-            return Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGBA")
-        if _CAIROSVG:
-            png_bytes = _cairosvg.svg2png(url=input_path)
-            if png_bytes is None:
-                raise ValueError(f"cairosvg returned no data for: {input_path}")
-            return Image.open(io.BytesIO(png_bytes)).convert("RGBA")
-        if _SVGLIB:
-            drawing = _svg2rlg(input_path)
-            if drawing is None:
-                raise ValueError(f"svglib could not parse SVG: {input_path}")
-            buf = io.BytesIO()
-            _renderPM.drawToFile(drawing, buf, fmt="PNG")
-            buf.seek(0)
-            return Image.open(buf).convert("RGBA")
-        raise RuntimeError(
-            "No SVG rasterizer available. Install pymupdf, cairosvg, or svglib."
-        )
+        sanitized = _sanitize_svg_file(input_path)
+        try:
+            if _PYMUPDF:
+                doc = _fitz.open(sanitized)
+                page = doc[0]
+                mat = _fitz.Matrix(3, 3)
+                pix = page.get_pixmap(matrix=mat, alpha=True)
+                return Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGBA")
+            if _CAIROSVG:
+                png_bytes = _cairosvg.svg2png(url=sanitized)
+                if png_bytes is None:
+                    raise ValueError(f"cairosvg returned no data for: {input_path}")
+                return Image.open(io.BytesIO(png_bytes)).convert("RGBA")
+            if _SVGLIB:
+                drawing = _svg2rlg(sanitized)
+                if drawing is None:
+                    raise ValueError(f"svglib could not parse SVG: {input_path}")
+                buf = io.BytesIO()
+                _renderPM.drawToFile(drawing, buf, fmt="PNG")
+                buf.seek(0)
+                return Image.open(buf).convert("RGBA")
+            raise RuntimeError(
+                "No SVG rasterizer available. Install pymupdf, cairosvg, or svglib."
+            )
+        finally:
+            if sanitized != input_path:
+                Path(sanitized).unlink(missing_ok=True)
 
     def convert(self, input_path: str, output_path: str, **options: Any) -> bool:
         try:

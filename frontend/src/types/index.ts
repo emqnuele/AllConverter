@@ -34,6 +34,8 @@ export interface ConversionSession {
   results: ConversionResult[];
   total: number;
   successful: number;
+  /** One-time secret returned by /convert — required for all download/delete calls. */
+  download_token?: string;
 }
 
 // ── Option shapes ────────────────────────────────────────────────────────────
