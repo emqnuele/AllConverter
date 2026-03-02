@@ -6,9 +6,14 @@
 set -e
 
 # ── Resolve uvicorn command ────────────────────────────────────────────────
-# Prefer the standalone binary; fall back to `python -m uvicorn` so the
-# script works whether or not the venv bin/ is on PATH.
-if command -v uvicorn &>/dev/null; then
+# Resolution order:
+#   1. uv run uvicorn         (uv-managed project)
+#   2. uvicorn                (standalone binary on PATH)
+#   3. python -m uvicorn      (venv activated, binary not on PATH)
+#   4. python3 -m uvicorn
+if command -v uv &>/dev/null && uv run uvicorn --version &>/dev/null 2>&1; then
+  UVICORN="uv run uvicorn"
+elif command -v uvicorn &>/dev/null; then
   UVICORN="uvicorn"
 elif python -m uvicorn --version &>/dev/null 2>&1; then
   UVICORN="python -m uvicorn"
@@ -16,7 +21,8 @@ elif python3 -m uvicorn --version &>/dev/null 2>&1; then
   UVICORN="python3 -m uvicorn"
 else
   echo "Error: uvicorn not found."
-  echo "Install it with:  pip install uvicorn"
+  echo "With uv:  uv add uvicorn"
+  echo "With pip: pip install uvicorn"
   exit 1
 fi
 
