@@ -189,7 +189,7 @@ export default function App() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.22, duration: 0.4 }}
                 >
-                  Images, audio, video and documents — locally, no cloud.
+                  Images, audio, video and documents.
                 </motion.p>
               </div>
               <DropZone onFilesSelected={handleFilesAdded} />
