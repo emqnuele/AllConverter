@@ -1,0 +1,124 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#080c0f"/>
+      <stop offset="100%" stop-color="#080c0f"/>
+    </linearGradient>
+
+    <!-- Teal glow top-center -->
+    <radialGradient id="glow1" cx="50%" cy="0%" r="55%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#0b9eb3" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#0b9eb3" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Purple glow bottom-right -->
+    <radialGradient id="glow2" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(1040 710) scale(380)">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Logo square glow -->
+    <filter id="logoGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+
+  <!-- Dot grid -->
+  <pattern id="dots" x="0" y="0" width="52" height="52" patternUnits="userSpaceOnUse">
+    <circle cx="1" cy="1" r="1" fill="white" fill-opacity="0.05"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Top accent line -->
+  <rect x="0" y="0" width="1200" height="3" fill="#0b9eb3" opacity="0.85"/>
+
+  <!--
+    Layout (mirrors Python script):
+      ROW  (logo + wordmark): vertically centered block, top at yâ‰ˆ191
+      logo bounding box: 115Ã—115 â†’ starts xâ‰ˆ285, yâ‰ˆ191
+      wordmark: xâ‰ˆ424, yâ‰ˆ216 (vertically centred in 115px)
+      tagline: centred at x=600, yâ‰ˆ350
+      pills:   centred starting xâ‰ˆ213, yâ‰ˆ418
+  -->
+
+  <!-- â”€â”€ Logo mark â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <g filter="url(#logoGlow)">
+    <!-- outlined square (source) -->
+    <rect x="285" y="191" width="65" height="65" rx="17"
+          stroke="#0b9eb3" stroke-width="8" fill="none"/>
+    <!-- filled square (output) -->
+    <rect x="335" y="241" width="65" height="65" rx="17"
+          fill="#0b9eb3"/>
+  </g>
+
+  <!-- â”€â”€ Wordmark â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <text x="424" y="272"
+    font-family="'Arial Black', 'Helvetica Neue', Arial, sans-serif"
+    font-size="72" font-weight="700" letter-spacing="-1.5"
+    fill="#f0f9fa">allconverter</text>
+
+  <!-- â”€â”€ Tagline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <text x="600" y="356"
+    font-family="'Helvetica Neue', Arial, sans-serif"
+    font-size="27" font-weight="400" text-anchor="middle"
+    fill="#99c6ce">Convert images, audio, video &amp; documents â€” free.</text>
+
+  <!-- â”€â”€ Pills (centred group at x=600) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <!-- Total estimated width â‰ˆ 774px â†’ group offset x = 600 - 774/2 = 213 -->
+  <g transform="translate(213, 418)">
+
+    <!-- PNG (teal) -->
+    <rect x="0"   y="0" width="64"  height="36" rx="9" fill="#0b9eb3" fill-opacity="0.12" stroke="#0b9eb3" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="32"  y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#f0f9fa" text-anchor="middle">PNG</text>
+
+    <!-- JPG (teal) -->
+    <rect x="74"  y="0" width="64"  height="36" rx="9" fill="#0b9eb3" fill-opacity="0.12" stroke="#0b9eb3" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="106" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#f0f9fa" text-anchor="middle">JPG</text>
+
+    <!-- AVIF (teal) -->
+    <rect x="148" y="0" width="72"  height="36" rx="9" fill="#0b9eb3" fill-opacity="0.12" stroke="#0b9eb3" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="184" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#f0f9fa" text-anchor="middle">AVIF</text>
+
+    <!-- WebP (teal) -->
+    <rect x="230" y="0" width="74"  height="36" rx="9" fill="#0b9eb3" fill-opacity="0.12" stroke="#0b9eb3" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="267" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#f0f9fa" text-anchor="middle">WebP</text>
+
+    <!-- MP3 (purple) -->
+    <rect x="314" y="0" width="64"  height="36" rx="9" fill="#7c3aed" fill-opacity="0.12" stroke="#7c3aed" stroke-opacity="0.43" stroke-width="1"/>
+    <text x="346" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#a78bfa" text-anchor="middle">MP3</text>
+
+    <!-- WAV (purple) -->
+    <rect x="388" y="0" width="64"  height="36" rx="9" fill="#7c3aed" fill-opacity="0.12" stroke="#7c3aed" stroke-opacity="0.43" stroke-width="1"/>
+    <text x="420" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#a78bfa" text-anchor="middle">WAV</text>
+
+    <!-- MP4 (green) -->
+    <rect x="462" y="0" width="64"  height="36" rx="9" fill="#34d399" fill-opacity="0.11" stroke="#34d399" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="494" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#34d399" text-anchor="middle">MP4</text>
+
+    <!-- MKV (green) -->
+    <rect x="536" y="0" width="64"  height="36" rx="9" fill="#34d399" fill-opacity="0.11" stroke="#34d399" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="568" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#34d399" text-anchor="middle">MKV</text>
+
+    <!-- PDF (amber) -->
+    <rect x="610" y="0" width="62"  height="36" rx="9" fill="#fbbf24" fill-opacity="0.11" stroke="#fbbf24" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="641" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#fbbf24" text-anchor="middle">PDF</text>
+
+    <!-- DOCX (amber) -->
+    <rect x="682" y="0" width="74"  height="36" rx="9" fill="#fbbf24" fill-opacity="0.11" stroke="#fbbf24" stroke-opacity="0.4" stroke-width="1"/>
+    <text x="719" y="23" font-family="'Courier New',monospace" font-size="14" font-weight="600" fill="#fbbf24" text-anchor="middle">DOCX</text>
+
+  </g>
+
+  <!-- â”€â”€ Domain watermark â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+  <text x="1176" y="602"
+    font-family="'Helvetica Neue', Arial, sans-serif"
+    font-size="16" fill="#506772" fill-opacity="0.7"
+    text-anchor="end">allconverter.emqnuele.dev</text>
+</svg>
