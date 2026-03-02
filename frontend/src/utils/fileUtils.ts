@@ -1,5 +1,8 @@
 import type { FileCategory, FileItem } from "../types";
 
+/** Must match Settings.MAX_FILE_SIZE on the backend. */
+export const MAX_FILE_SIZE = 300 * 1024 * 1024; // 300 MB
+
 export function fileToItem(file: File): FileItem {
   return {
     id: crypto.randomUUID(),

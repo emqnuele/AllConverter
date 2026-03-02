@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import RecentHistory from "./components/RecentHistory";
 import { getFormats, convertFiles } from "./api/client";
 import { useHistory } from "./hooks/useHistory";
+import { MAX_FILE_SIZE } from "./utils/fileUtils";
 import type {
   FileItem,
   ConversionSession,
@@ -253,16 +254,44 @@ export default function App() {
                 )}
               </AnimatePresence>
 
-              <motion.button
-                onClick={handleConvert}
-                disabled={!targetFormat || !files.length}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
-                className="btn-primary-glow w-full py-3.5 px-6 rounded-2xl bg-primary text-primary-foreground font-medium text-sm disabled:opacity-35 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
-              >
-                Convert {files.length} file{files.length !== 1 ? "s" : ""} to{" "}
-                {targetFormat ? `.${targetFormat}` : "…"}
-              </motion.button>
+              {(() => {
+                const oversized = files.filter((f) => f.size > MAX_FILE_SIZE);
+                const hasOversized = oversized.length > 0;
+                return (
+                  <>
+                    <AnimatePresence>
+                      {hasOversized && (
+                        <motion.div
+                          key="oversized-warning"
+                          initial={{ opacity: 0, scale: 0.97, y: -4 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.97 }}
+                          transition={{ duration: 0.2 }}
+                          className="flex items-start gap-3 p-4 rounded-2xl bg-destructive/8 dark:bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+                        >
+                          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                          <span>
+                            {oversized.length === 1
+                              ? `"${oversized[0].name}" exceeds the 300 MB limit. Remove it to continue.`
+                              : `${oversized.length} files exceed the 300 MB limit. Remove them to continue.`}
+                          </span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    <motion.button
+                      onClick={handleConvert}
+                      disabled={!targetFormat || !files.length || hasOversized}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="btn-primary-glow w-full py-3.5 px-6 rounded-2xl bg-primary text-primary-foreground font-medium text-sm disabled:opacity-35 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
+                    >
+                      Convert {files.length} file{files.length !== 1 ? "s" : ""} to{" "}
+                      {targetFormat ? `.${targetFormat}` : "…"}
+                    </motion.button>
+                  </>
+                );
+              })()}
             </motion.div>
           )}
 

@@ -25,6 +25,11 @@ _executor = ThreadPoolExecutor(max_workers=settings.MAX_WORKERS)
 _detector = FileTypeDetector()
 _factory = ConverterFactory()
 
+_CAT_OUTPUTS: dict[str, frozenset[str]] = {
+    cat: frozenset(cls().get_supported_output_formats())
+    for cat, cls in _FACTORIES.items()
+}
+
 
 
 def _process_file(
@@ -96,36 +101,40 @@ async def convert_files(
 
     try:
         for uf in files:
-            filename = uf.filename or "upload"
+            filename = Path(uf.filename or "upload").name or "upload"
             dest = settings.UPLOAD_DIR / f"{session_id}_{filename}"
-
-            content = await uf.read()
-
-            if len(content) > settings.MAX_FILE_SIZE:
+            src_ext = Path(filename).suffix.lstrip(".").lower()
+            src_cat = _EXT_CAT.get(src_ext)
+            if src_cat and target_format not in _CAT_OUTPUTS.get(src_cat, frozenset()):
                 raise HTTPException(
-                    status_code=413,
+                    status_code=422,
                     detail=(
-                        f"'{filename}' exceeds the "
-                        f"{settings.MAX_FILE_SIZE // (1024 ** 2)} MB limit"
+                        f"Cannot convert '{filename}' (.{src_ext}) "
+                        f"to .{target_format}: unsupported conversion."
                     ),
                 )
 
-            src_ext = Path(filename).suffix.lstrip(".").lower()
-            src_cat = _EXT_CAT.get(src_ext)
-            dst_cat = _EXT_CAT.get(target_format)
-            if src_cat and dst_cat and src_cat != dst_cat:
-                if not (src_cat == "video" and dst_cat == "audio"):
-                    raise HTTPException(
-                        status_code=422,
-                        detail=(
-                            f"Cannot convert '{filename}' ({src_cat}) "
-                            f"to .{target_format} ({dst_cat}). "
-                            "Source and target categories must match."
-                        ),
-                    )
+            received = 0
+            try:
+                async with aiofiles.open(dest, "wb") as fh:
+                    while True:
+                        chunk = await uf.read(65536)  # 64 KiB chunks
+                        if not chunk:
+                            break
+                        received += len(chunk)
+                        if received > settings.MAX_FILE_SIZE:
+                            raise HTTPException(
+                                status_code=413,
+                                detail=(
+                                    f"'{filename}' exceeds the "
+                                    f"{settings.MAX_FILE_SIZE // (1024 ** 2)} MB limit"
+                                ),
+                            )
+                        await fh.write(chunk)
+            except HTTPException:
+                dest.unlink(missing_ok=True)  # remove partial file
+                raise
 
-            async with aiofiles.open(dest, "wb") as fh:
-                await fh.write(content)
             saved.append((dest, filename))
 
 

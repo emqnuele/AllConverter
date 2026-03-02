@@ -150,7 +150,7 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
             </div>
 
             <p className="text-muted-foreground/50 text-sm">
-              Up to 500 MB per file
+              Up to 300 MB per file
             </p>
           </motion.div>
         )}

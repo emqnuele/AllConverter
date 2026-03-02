@@ -47,7 +47,7 @@ if (-not (Test-Path "frontend\node_modules")) {
 
 # ── Start FastAPI ──────────────────────────────────────────────────────────
 Write-Host "Starting FastAPI backend on :8000 ..."
-$backendArgs = $uvicornArgs + @("main:app", "--host", "0.0.0.0", "--port", "8000", "--reload")
+$backendArgs = $uvicornArgs + @("main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-exclude", ".venv*", "--reload-exclude", "uploads/*", "--reload-exclude", "converted/*", "--reload-exclude", "frontend/*")
 $backend = Start-Process -FilePath $uvicornExe -ArgumentList $backendArgs -PassThru -NoNewWindow
 
 # ── Start Vite ────────────────────────────────────────────────────────────

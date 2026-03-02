@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 _EXT_CAT: dict[str, str] = {
     # images
     **dict.fromkeys(
-        ["jpg","jpeg","png","gif","bmp","tiff","tif","webp","heic","heif","ico","ppm","pgm","pbm","pnm","avif"],
+        ["jpg","jpeg","png","gif","bmp","tiff","tif","webp","heic","heif","ico","ppm","pgm","pbm","pnm","avif","svg"],
         "image",
     ),
     # audio

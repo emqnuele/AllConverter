@@ -16,10 +16,14 @@ from .base import BaseConverter
 logger = logging.getLogger(__name__)
 
 try:
-    from PyPDF2 import PdfReader, PdfWriter
+    from pypdf import PdfReader, PdfWriter
     _PYPDF2 = True
 except ImportError:
-    _PYPDF2 = False
+    try:
+        from PyPDF2 import PdfReader, PdfWriter  # type: ignore[no-redef]
+        _PYPDF2 = True
+    except ImportError:
+        _PYPDF2 = False
 
 try:
     import docx as _docx_module
@@ -367,13 +371,17 @@ class DocumentConverter(BaseConverter):
         if src == "json" and dst == "xml":
             return self._json_to_xml(inp, out)
         if src == "csv" and dst == "xml":
-            tmp = tempfile.mktemp(suffix=".json")
+            tmp_fd, tmp_path = tempfile.mkstemp(suffix=".json")
+            os.close(tmp_fd)
+            tmp = tmp_path
             try:
                 return self._csv_to_json(inp, tmp) and self._json_to_xml(tmp, out)
             finally:
                 Path(tmp).unlink(missing_ok=True)
         if src == "xml" and dst == "csv":
-            tmp = tempfile.mktemp(suffix=".json")
+            tmp_fd, tmp_path = tempfile.mkstemp(suffix=".json")
+            os.close(tmp_fd)
+            tmp = tmp_path
             try:
                 return self._xml_to_json(inp, tmp) and self._json_to_csv(tmp, out)
             finally:

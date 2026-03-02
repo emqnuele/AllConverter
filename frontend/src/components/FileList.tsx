@@ -1,8 +1,8 @@
 import { useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, Plus, ImageIcon, Music, Film, FileText, Paperclip } from "lucide-react";
+import { X, Plus, ImageIcon, Music, Film, FileText, Paperclip, AlertTriangle } from "lucide-react";
 import type { FileCategory, FileItem } from "../types";
-import { fileToItem, formatBytes } from "../utils/fileUtils";
+import { fileToItem, formatBytes, MAX_FILE_SIZE } from "../utils/fileUtils";
 
 interface FileListProps {
   files: FileItem[];
@@ -82,6 +82,14 @@ export default function FileList({ files, onRemove, onAdd }: FileListProps) {
                 <p className="text-sm font-medium truncate">{f.name}</p>
                 <p className="text-xs text-muted-foreground">{formatBytes(f.size)}</p>
               </div>
+
+              {/* Oversized warning badge */}
+              {f.size > MAX_FILE_SIZE && (
+                <span className="shrink-0 flex items-center gap-1 text-xs font-medium text-destructive bg-destructive/10 border border-destructive/20 rounded-full px-2 py-0.5">
+                  <AlertTriangle className="w-3 h-3" />
+                  Too large
+                </span>
+              )}
 
               {/* Remove */}
               <motion.button

@@ -34,7 +34,11 @@ fi
 
 # ── Start FastAPI ──────────────────────────────────────────────────────────
 echo "Starting FastAPI backend on :8000 ..."
-$UVICORN main:app --host 0.0.0.0 --port 8000 --reload &
+$UVICORN main:app --host 0.0.0.0 --port 8000 --reload \
+  --reload-exclude ".venv*" \
+  --reload-exclude "uploads/*" \
+  --reload-exclude "converted/*" \
+  --reload-exclude "frontend/*" &
 BACKEND_PID=$!
 
 # ── Start Vite ────────────────────────────────────────────────────────────

@@ -1,4 +1,5 @@
 from __future__ import annotations
+import io
 import logging
 from pathlib import Path
 from typing import Any, List, Optional, Tuple, Union
@@ -11,6 +12,25 @@ try:
     register_heif_opener()
 except ImportError:
     pass
+
+try:
+    import fitz as _fitz
+    _PYMUPDF: bool = True
+except Exception:
+    _PYMUPDF = False
+
+try:
+    import cairosvg as _cairosvg
+    _CAIROSVG: bool = True
+except Exception:
+    _CAIROSVG = False
+
+try:
+    from svglib.svglib import svg2rlg as _svg2rlg          # type: ignore[import]
+    from reportlab.graphics import renderPM as _renderPM   # type: ignore[import]
+    _SVGLIB: bool = True
+except Exception:
+    _SVGLIB = False
 
 from .base import BaseConverter
 
@@ -28,10 +48,13 @@ _PIL_FORMAT = {
 class ImageConverter(BaseConverter):
 
     def get_supported_input_formats(self) -> List[str]:
-        return [
+        base = [
             "jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp",
             "heic", "heif", "ico", "ppm", "pgm", "pbm", "pnm", "avif",
         ]
+        if _PYMUPDF or _CAIROSVG or _SVGLIB:
+            base.append("svg")
+        return base
 
     def get_supported_output_formats(self) -> List[str]:
         return [
@@ -39,9 +62,38 @@ class ImageConverter(BaseConverter):
             "ico", "pdf", "ppm", "pgm", "pbm", "pnm", "avif",
         ]
 
+    @staticmethod
+    def _rasterize_svg(input_path: str) -> Image.Image:
+        if _PYMUPDF:
+            doc = _fitz.open(input_path)
+            page = doc[0]
+            mat = _fitz.Matrix(3, 3)
+            pix = page.get_pixmap(matrix=mat, alpha=True)
+            return Image.open(io.BytesIO(pix.tobytes("png"))).convert("RGBA")
+        if _CAIROSVG:
+            png_bytes = _cairosvg.svg2png(url=input_path)
+            if png_bytes is None:
+                raise ValueError(f"cairosvg returned no data for: {input_path}")
+            return Image.open(io.BytesIO(png_bytes)).convert("RGBA")
+        if _SVGLIB:
+            drawing = _svg2rlg(input_path)
+            if drawing is None:
+                raise ValueError(f"svglib could not parse SVG: {input_path}")
+            buf = io.BytesIO()
+            _renderPM.drawToFile(drawing, buf, fmt="PNG")
+            buf.seek(0)
+            return Image.open(buf).convert("RGBA")
+        raise RuntimeError(
+            "No SVG rasterizer available. Install pymupdf, cairosvg, or svglib."
+        )
+
     def convert(self, input_path: str, output_path: str, **options: Any) -> bool:
         try:
-            img = Image.open(input_path)
+            src_ext = self.src_ext(input_path)
+            if src_ext == "svg":
+                img = self._rasterize_svg(input_path)
+            else:
+                img = Image.open(input_path)
             img = ImageOps.exif_transpose(img)
 
             img = self._apply_transforms(img, options)

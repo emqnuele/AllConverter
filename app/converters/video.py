@@ -5,22 +5,11 @@ import subprocess
 from pathlib import Path
 from typing import Any, List, Optional
 from .base import BaseConverter
-from .audio import _ensure_ffmpeg
+from ._ffmpeg import AUDIO_CODEC as _AUDIO_CODEC, VIDEO_CODEC, PRESET_CODECS, ensure_ffmpeg as _ensure_ffmpeg
 
 logger = logging.getLogger(__name__)
 
-_VIDEO_CODEC: dict[str, str] = {
-    "mp4":  "libx264",
-    "mov":  "libx264",
-    "mkv":  "libx264",
-    "flv":  "libx264",
-    "avi":  "libxvid",
-    "webm": "libvpx-vp9",
-    "ogv":  "libtheora",
-    "3gp":  "h263",
-}
-
-_AUDIO_CODEC: dict[str, str] = {
+_CONTAINER_AUDIO: dict[str, str] = {
     "mp4":  "aac",
     "mov":  "aac",
     "mkv":  "aac",
@@ -29,14 +18,11 @@ _AUDIO_CODEC: dict[str, str] = {
     "webm": "libvorbis",
     "ogv":  "libvorbis",
     "3gp":  "libopencore_amrnb",
-    "mp3":  "libmp3lame",
-    "ogg":  "libvorbis",
-    "aac":  "aac",
-    "flac": "flac",
-    "wav":  "pcm_s16le",
+    **_AUDIO_CODEC,
 }
 
-_PRESET_CODECS = {"libx264", "libx265"}
+_VIDEO_CODEC = VIDEO_CODEC
+_PRESET_CODECS = PRESET_CODECS
 
 
 class VideoConverter(BaseConverter):
@@ -133,7 +119,7 @@ class VideoConverter(BaseConverter):
             if no_audio:
                 cmd += ["-an"]
             else:
-                ac = _AUDIO_CODEC.get(ext)
+                ac = _CONTAINER_AUDIO.get(ext)
                 if ac:
                     cmd += ["-c:a", ac]
                 if audio_bitrate:

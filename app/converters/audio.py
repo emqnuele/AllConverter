@@ -4,37 +4,9 @@ import subprocess
 from pathlib import Path
 from typing import Any, List, Optional
 from .base import BaseConverter
+from ._ffmpeg import AUDIO_CODEC as _AUDIO_CODEC, ensure_ffmpeg as _ensure_ffmpeg
 
 logger = logging.getLogger(__name__)
-
-_ffmpeg_ready = False
-
-def _ensure_ffmpeg() -> None:
-    global _ffmpeg_ready
-    if _ffmpeg_ready:
-        return
-    try:
-        from app.config import settings
-        if settings.USE_STATIC_FFMPEG:
-            import static_ffmpeg
-            static_ffmpeg.add_paths()
-    except Exception as exc:
-        logger.warning("static-ffmpeg bootstrap skipped: %s", exc)
-    _ffmpeg_ready = True
-
-
-_AUDIO_CODEC: dict[str, str] = {
-    "mp3":  "libmp3lame",
-    "ogg":  "libvorbis",
-    "opus": "libopus",
-    "flac": "flac",
-    "aac":  "aac",
-    "m4a":  "aac",
-    "wav":  "pcm_s16le",
-    "wma":  "wmav2",
-    "ac3":  "ac3",
-    "amr":  "libopencore_amrnb",
-}
 
 
 class AudioConverter(BaseConverter):

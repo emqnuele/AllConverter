@@ -27,11 +27,15 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
     settings.CONVERTED_DIR.mkdir(parents=True, exist_ok=True)
 
+    from app.converters._ffmpeg import warmup_ffmpeg
+    await warmup_ffmpeg()
+
     cleanup_task = asyncio.create_task(
         cleanup_loop(
-            settings.CONVERTED_DIR,
-            settings.SESSION_TTL_HOURS,
-            settings.CLEANUP_INTERVAL_SECONDS,
+            converted_dir=settings.CONVERTED_DIR,
+            upload_dir=settings.UPLOAD_DIR,
+            ttl_hours=settings.SESSION_TTL_HOURS,
+            interval_seconds=settings.CLEANUP_INTERVAL_SECONDS,
         )
     )
     logger.info("AllConverter API started ✓")
@@ -43,6 +47,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         await cleanup_task
     except asyncio.CancelledError:
         pass
+
+    # shut down the conversion thread-pool gracefully
+    from app.routes.convert import _executor
+    _executor.shutdown(wait=False)
+
     logger.info("AllConverter API stopped")
 
 
@@ -59,7 +68,7 @@ def create_app() -> FastAPI:
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=settings.CORS_ORIGINS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -107,10 +116,5 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=8000,
         reload=True,
-        reload_excludes=["uploads/*", "converted/*", "frontend/*"],
+        reload_excludes=["uploads/*", "converted/*", "frontend/*", ".venv/*"],
     )
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
