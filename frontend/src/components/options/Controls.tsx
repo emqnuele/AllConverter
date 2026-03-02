@@ -11,7 +11,7 @@ export function Field({
 }) {
   return (
     <label className="flex flex-col gap-1.5 flex-1 min-w-0">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground tracking-wide">{label}</span>
       {children}
     </label>
   );
@@ -36,10 +36,10 @@ export function Select({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="input-field appearance-none"
+      className="input-field dark:bg-white/[0.03]"
     >
       {options.map((o) => (
-        <option key={o.value} value={o.value}>
+        <option key={o.value} value={o.value} className="dark:bg-[#0e0e17]">
           {o.label}
         </option>
       ))}
@@ -64,12 +64,11 @@ export function Slider({
   unit?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
-        <span className="text-xs font-semibold tabular-nums">
-          {value}
-          {unit}
+        <span className="text-xs font-medium text-muted-foreground tracking-wide">{label}</span>
+        <span className="text-xs font-bold tabular-nums text-foreground/80">
+          {value}{unit}
         </span>
       </div>
       <input
@@ -78,7 +77,7 @@ export function Slider({
         max={max}
         value={value}
         onChange={(e) => onChange(parseInt(e.target.value))}
-        className="w-full h-1.5 rounded-full bg-muted accent-primary cursor-pointer"
+        className="w-full h-1.5 rounded-full dark:bg-white/[0.06] bg-muted accent-primary cursor-pointer"
       />
     </div>
   );
@@ -95,16 +94,18 @@ export function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-3 cursor-pointer">
-      <span className="text-xs font-medium text-muted-foreground">{label}</span>
+    <label className="flex items-center justify-between gap-3 cursor-pointer py-0.5">
+      <span className="text-xs font-medium text-muted-foreground tracking-wide">{label}</span>
       <motion.div
         onClick={() => onChange(!checked)}
         animate={{
           backgroundColor: checked
             ? "hsl(var(--primary))"
-            : "hsl(var(--muted))",
+            : "rgba(255,255,255,0.08)",
         }}
-        className="relative w-9 h-5 rounded-full shrink-0"
+        transition={{ duration: 0.18 }}
+        className="relative w-9 h-5 rounded-full shrink-0 cursor-pointer"
+        style={{ boxShadow: checked ? "0 0 10px hsl(var(--primary)/0.35)" : "none" }}
       >
         <motion.div
           animate={{ x: checked ? 16 : 2 }}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Settings2 } from "lucide-react";
+import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import type { FileItem, ConversionOptions as ConvOpts } from "../types";
 import { inferCategory } from "../utils/fileUtils";
 import ImageOptions from "./options/ImageOptions";
@@ -26,21 +26,23 @@ export default function ConversionOptions({
   const category =
     files[0]?.category ?? (files[0] ? inferCategory(files[0].file) : null);
 
-  const hasOptions = !!category;
-  if (!hasOptions) return null;
+  if (!category) return null;
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className="glass rounded-2xl overflow-hidden">
       {/* Toggle header */}
       <button
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Settings2 className="w-4 h-4" />
+          <SlidersHorizontal className="w-4 h-4" />
           <span>Advanced options</span>
         </div>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ duration: 0.2 }}>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+        >
           <ChevronDown className="w-4 h-4" />
         </motion.span>
       </button>
@@ -51,11 +53,19 @@ export default function ConversionOptions({
           <motion.div
             key="panel"
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1, transition: { duration: 0.25, ease: "easeOut" } }}
-            exit={{ height: 0, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }}
+            animate={{
+              height: "auto",
+              opacity: 1,
+              transition: { duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] },
+            }}
+            exit={{
+              height: 0,
+              opacity: 0,
+              transition: { duration: 0.22, ease: "easeIn" },
+            }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 pt-1 border-t border-border">
+            <div className="px-4 pb-5 pt-1 border-t border-border/60 dark:border-white/[0.05]">
               {category === "image" && (
                 <ImageOptions value={value} onChange={onChange} />
               )}

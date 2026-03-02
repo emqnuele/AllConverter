@@ -57,17 +57,3 @@ export function formatBytes(bytes: number): string {
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
 
-export function fileIcon(cat?: FileCategory): string {
-  switch (cat) {
-    case "image":
-      return "🖼";
-    case "audio":
-      return "🎵";
-    case "video":
-      return "🎬";
-    case "document":
-      return "📄";
-    default:
-      return "📎";
-  }
-}

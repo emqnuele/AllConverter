@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
 import Header from "./components/Header";
 import DropZone from "./components/DropZone";
 import FileList from "./components/FileList";
@@ -18,9 +19,19 @@ import type {
 type Step = "upload" | "configure" | "converting" | "results";
 
 const pageVariants = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } },
-  exit: { opacity: 0, y: -12, transition: { duration: 0.2, ease: "easeIn" } },
+  initial: { opacity: 0, y: 18, filter: "blur(4px)" },
+  animate: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.42, ease: [0.25, 0.46, 0.45, 0.94] },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    filter: "blur(3px)",
+    transition: { duration: 0.24, ease: "easeIn" },
+  },
 };
 
 export default function App() {
@@ -28,9 +39,7 @@ export default function App() {
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("ac-theme");
     if (saved === "light" || saved === "dark") return saved;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
 
   useEffect(() => {
@@ -52,8 +61,6 @@ export default function App() {
   const [progress, setProgress] = useState(0);
   const [session, setSession] = useState<ConversionSession | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // ── Load formats (with retry support) ─────────────────────────────────────
   const [formatsError, setFormatsError] = useState(false);
 
   const loadFormats = useCallback(() => {
@@ -104,8 +111,7 @@ export default function App() {
       setSession(result);
       setStep("results");
     } catch (e: unknown) {
-      const msg =
-        e instanceof Error ? e.message : "Conversion failed. Please retry.";
+      const msg = e instanceof Error ? e.message : "Conversion failed. Please retry.";
       setError(msg);
       setStep("configure");
     }
@@ -122,21 +128,61 @@ export default function App() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background overflow-x-hidden">
+
+      {/* Ambient background orbs (dark mode only) */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+        <motion.div
+          className="absolute rounded-full opacity-0 dark:opacity-100"
+          style={{
+            width: "700px",
+            height: "700px",
+            background: "radial-gradient(circle, hsl(188 100% 48% / 0.12) 0%, transparent 70%)",
+            top: "-280px",
+            left: "-180px",
+          }}
+          animate={{ scale: [1, 1.06, 1], x: [0, 10, 0] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute rounded-full opacity-0 dark:opacity-100"
+          style={{
+            width: "560px",
+            height: "560px",
+            background: "radial-gradient(circle, hsl(258 70% 60% / 0.08) 0%, transparent 70%)",
+            bottom: "-220px",
+            right: "-140px",
+          }}
+          animate={{ scale: [1, 1.08, 1], y: [0, -12, 0] }}
+          transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        />
+      </div>
+
       <Header theme={theme} onToggleTheme={toggleTheme} />
 
-      <main className="max-w-2xl mx-auto px-4 pb-20 pt-8">
+      <main className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 pb-20 pt-8">
         <AnimatePresence mode="wait">
+
           {/* ── Step: Upload ───────────────────────────────────────────── */}
           {step === "upload" && (
             <motion.div key="upload" {...pageVariants}>
               <div className="text-center mb-10">
-                <h1 className="text-3xl font-semibold tracking-tight mb-2">
+                <motion.h1
+                  className="text-3xl sm:text-4xl font-semibold tracking-tight mb-3 text-gradient"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1, duration: 0.5 }}
+                >
                   Convert anything
-                </h1>
-                <p className="text-muted-foreground text-sm">
+                </motion.h1>
+                <motion.p
+                  className="text-muted-foreground text-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.22, duration: 0.4 }}
+                >
                   Images, audio, video and documents — locally, no cloud.
-                </p>
+                </motion.p>
               </div>
               <DropZone onFilesSelected={handleFilesAdded} />
             </motion.div>
@@ -144,7 +190,7 @@ export default function App() {
 
           {/* ── Step: Configure ────────────────────────────────────────── */}
           {step === "configure" && (
-            <motion.div key="configure" {...pageVariants} className="space-y-5">
+            <motion.div key="configure" {...pageVariants} className="space-y-4">
               <FileList
                 files={files}
                 onRemove={handleRemoveFile}
@@ -170,6 +216,7 @@ export default function App() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
                   >
                     <ConversionOptions
                       files={files}
@@ -185,12 +232,13 @@ export default function App() {
                 {error && (
                   <motion.div
                     key="error"
-                    initial={{ opacity: 0, scale: 0.97 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-start gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+                    initial={{ opacity: 0, scale: 0.97, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-start gap-3 p-4 rounded-2xl bg-destructive/8 dark:bg-destructive/10 border border-destructive/20 text-destructive text-sm"
                   >
-                    <span className="shrink-0 mt-0.5">⚠</span>
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>{error}</span>
                   </motion.div>
                 )}
@@ -201,9 +249,9 @@ export default function App() {
                 disabled={!targetFormat || !files.length}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-3.5 px-6 rounded-2xl bg-primary text-primary-foreground font-medium text-sm disabled:opacity-40 disabled:cursor-not-allowed transition-colors hover:opacity-90"
+                className="btn-primary-glow w-full py-3.5 px-6 rounded-2xl bg-primary text-primary-foreground font-medium text-sm disabled:opacity-35 disabled:cursor-not-allowed transition-opacity hover:opacity-90"
               >
-                Convert {files.length} file{files.length !== 1 ? "s" : ""} →{" "}
+                Convert {files.length} file{files.length !== 1 ? "s" : ""} to{" "}
                 {targetFormat ? `.${targetFormat}` : "…"}
               </motion.button>
             </motion.div>
@@ -226,6 +274,7 @@ export default function App() {
               <Results session={session} onConvertMore={handleReset} />
             </motion.div>
           )}
+
         </AnimatePresence>
       </main>
     </div>

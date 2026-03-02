@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FolderOpen } from "lucide-react";
+import { Upload } from "lucide-react";
 import type { FileItem } from "../types";
 import { fileToItem } from "../utils/fileUtils";
 
@@ -53,19 +53,33 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
       onDrop={onDrop}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
-      animate={{
-        borderColor: isDragging
-          ? "hsl(var(--primary))"
-          : "hsl(var(--border))",
-        backgroundColor: isDragging
-          ? "hsl(var(--accent))"
-          : "transparent",
-      }}
-      transition={{ duration: 0.15 }}
-      className="relative flex flex-col items-center justify-center w-full rounded-3xl border-2 border-dashed cursor-pointer select-none"
-      style={{ minHeight: 280 }}
       onClick={() => inputRef.current?.click()}
+      animate={{
+        boxShadow: isDragging
+          ? "0 0 0 1px hsl(var(--primary) / 0.5), 0 0 50px hsl(var(--primary) / 0.12), inset 0 1px 0 rgba(255,255,255,0.06)"
+          : "0 0 0 1px rgba(255,255,255,0.06), inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.3)",
+      }}
+      transition={{ duration: 0.2 }}
+      className="relative flex flex-col items-center justify-center w-full rounded-3xl cursor-pointer select-none overflow-hidden"
+      style={{
+        minHeight: 280,
+        background: isDragging
+          ? "hsl(var(--accent) / 0.5)"
+          : undefined,
+      }}
     >
+      {/* Glass background */}
+      <div className="absolute inset-0 glass rounded-3xl -z-10" />
+
+      {/* Dashed border overlay */}
+      <div
+        className="absolute inset-0 rounded-3xl pointer-events-none"
+        style={{
+          border: `1.5px dashed ${isDragging ? "hsl(var(--primary) / 0.6)" : "rgba(255,255,255,0.1)"}`,
+          transition: "border-color 0.2s ease",
+        }}
+      />
+
       <input
         ref={inputRef}
         type="file"
@@ -78,61 +92,94 @@ export default function DropZone({ onFilesSelected }: DropZoneProps) {
         {isDragging ? (
           <motion.div
             key="dropping"
-            initial={{ scale: 0.85, opacity: 0 }}
+            initial={{ scale: 0.88, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.85, opacity: 0 }}
+            exit={{ scale: 0.88, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
             className="flex flex-col items-center gap-4 pointer-events-none"
           >
             <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
-              className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 0.75, ease: "easeInOut" }}
+              className="w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{ background: "hsl(var(--primary) / 0.18)" }}
             >
               <Upload className="w-8 h-8 text-primary" />
             </motion.div>
-            <p className="text-primary font-medium text-sm">Drop your files here</p>
+            <p className="text-primary font-medium text-sm tracking-tight">
+              Release to add files
+            </p>
           </motion.div>
         ) : (
           <motion.div
             key="idle"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.25 }}
             className="flex flex-col items-center gap-5 pointer-events-none px-8 text-center"
           >
-            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center">
+            <motion.div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center dark:bg-white/[0.05] bg-muted"
+              whileHover={{ scale: 1.05 }}
+            >
               <Upload className="w-7 h-7 text-muted-foreground" />
-            </div>
-            <div>
-              <p className="font-medium text-sm mb-1">
+            </motion.div>
+
+            <div className="space-y-1">
+              <p className="font-medium text-sm">
                 Drag &amp; drop your files here
               </p>
               <p className="text-muted-foreground text-xs">
                 or click to browse from your computer
               </p>
             </div>
+
             <div className="flex flex-wrap gap-2 justify-center">
-              {["Images", "Audio", "Video", "Documents"].map((cat) => (
-                <span
+              {["Images", "Audio", "Video", "Documents"].map((cat, i) => (
+                <motion.span
                   key={cat}
-                  className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-xs font-medium"
+                  initial={{ opacity: 0, scale: 0.85 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.05 + i * 0.05 }}
+                  className="px-3 py-1 rounded-full dark:bg-white/[0.05] bg-muted text-muted-foreground text-xs font-medium"
                 >
                   {cat}
-                </span>
+                </motion.span>
               ))}
             </div>
-            <p className="text-muted-foreground text-xs opacity-60">
+
+            <p className="text-muted-foreground/50 text-xs">
               Up to 500 MB per file
             </p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Decorative corners */}
-      <span className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-muted-foreground/20 rounded-tl-lg pointer-events-none" />
-      <span className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-muted-foreground/20 rounded-tr-lg pointer-events-none" />
-      <span className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-muted-foreground/20 rounded-bl-lg pointer-events-none" />
-      <span className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-muted-foreground/20 rounded-br-lg pointer-events-none" />
+      {/* Corner brackets */}
+      {(["tl", "tr", "bl", "br"] as const).map((pos) => (
+        <span
+          key={pos}
+          className="absolute pointer-events-none"
+          style={{
+            top: pos.startsWith("t") ? 14 : "auto",
+            bottom: pos.startsWith("b") ? 14 : "auto",
+            left: pos.endsWith("l") ? 14 : "auto",
+            right: pos.endsWith("r") ? 14 : "auto",
+            width: 14,
+            height: 14,
+            borderTop: pos.startsWith("t") ? `1.5px solid rgba(255,255,255,${isDragging ? 0.4 : 0.15})` : "none",
+            borderBottom: pos.startsWith("b") ? `1.5px solid rgba(255,255,255,${isDragging ? 0.4 : 0.15})` : "none",
+            borderLeft: pos.endsWith("l") ? `1.5px solid rgba(255,255,255,${isDragging ? 0.4 : 0.15})` : "none",
+            borderRight: pos.endsWith("r") ? `1.5px solid rgba(255,255,255,${isDragging ? 0.4 : 0.15})` : "none",
+            borderTopLeftRadius: pos === "tl" ? 5 : 0,
+            borderTopRightRadius: pos === "tr" ? 5 : 0,
+            borderBottomLeftRadius: pos === "bl" ? 5 : 0,
+            borderBottomRightRadius: pos === "br" ? 5 : 0,
+            transition: "border-color 0.2s ease",
+          }}
+        />
+      ))}
     </motion.div>
   );
 }

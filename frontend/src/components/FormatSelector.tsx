@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, ImageIcon, Music, Film, FileText } from "lucide-react";
 import type { FileCategory, FileItem, SupportedFormats } from "../types";
 import { inferCategory } from "../utils/fileUtils";
 
@@ -20,12 +20,15 @@ const CATEGORY_LABELS: Record<FileCategory, string> = {
   document: "Document",
 };
 
-const CATEGORY_EMOJI: Record<FileCategory, string> = {
-  image: "🖼",
-  audio: "🎵",
-  video: "🎬",
-  document: "📄",
-};
+function CategoryIcon({ category }: { category: FileCategory }) {
+  const cls = "w-3.5 h-3.5";
+  switch (category) {
+    case "image":    return <ImageIcon className={cls} />;
+    case "audio":    return <Music className={cls} />;
+    case "video":    return <Film className={cls} />;
+    case "document": return <FileText className={cls} />;
+  }
+}
 
 export default function FormatSelector({
   formats,
@@ -35,7 +38,6 @@ export default function FormatSelector({
   value,
   onChange,
 }: FormatSelectorProps) {
-  // Determine which category the uploaded files belong to
   const detectedCategory = useMemo<FileCategory | null>(() => {
     if (!files.length) return null;
     const cats = files.map((f) => f.category ?? inferCategory(f.file));
@@ -50,13 +52,13 @@ export default function FormatSelector({
 
   if (formatsError) {
     return (
-      <div className="h-24 rounded-2xl border border-destructive/30 bg-destructive/5 flex flex-col items-center justify-center gap-2">
+      <div className="glass h-24 rounded-2xl border-destructive/20 flex flex-col items-center justify-center gap-2">
         <p className="text-sm text-destructive">
           Could not reach the backend. Is the server running?
         </p>
         <button
           onClick={onRetryFormats}
-          className="flex items-center gap-1.5 text-xs font-medium text-destructive hover:opacity-80 transition-opacity"
+          className="flex items-center gap-1.5 text-xs font-medium text-destructive hover:opacity-75 transition-opacity"
         >
           <RefreshCw className="w-3.5 h-3.5" />
           Retry
@@ -67,17 +69,21 @@ export default function FormatSelector({
 
   if (!formats) {
     return (
-      <div className="h-24 rounded-2xl border border-border bg-muted/30 flex items-center justify-center">
-        <span className="text-sm text-muted-foreground animate-pulse">
-          Loading formats…
-        </span>
+      <div className="glass h-24 rounded-2xl flex items-center justify-center">
+        <motion.span
+          className="text-sm text-muted-foreground"
+          animate={{ opacity: [0.4, 1, 0.4] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          Loading formats
+        </motion.span>
       </div>
     );
   }
 
   if (!detectedCategory) {
     return (
-      <div className="p-4 rounded-2xl border border-border bg-card text-center">
+      <div className="glass p-4 rounded-2xl text-center">
         <p className="text-sm text-muted-foreground">
           Mixed file types detected — all files should be the same category.
         </p>
@@ -86,17 +92,19 @@ export default function FormatSelector({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+    <div className="glass rounded-2xl overflow-hidden">
       {/* Category label */}
-      <div className="px-4 py-3 border-b border-border flex items-center gap-2">
-        <span className="text-base">{CATEGORY_EMOJI[detectedCategory]}</span>
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+      <div className="px-4 py-3 border-b border-border/60 dark:border-white/[0.05] flex items-center gap-2">
+        <span className="text-muted-foreground">
+          <CategoryIcon category={detectedCategory} />
+        </span>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
           {CATEGORY_LABELS[detectedCategory]} — Convert to
         </span>
       </div>
 
-      {/* Format grid */}
-      <AnimatePresence>
+      {/* Format pills */}
+      <AnimatePresence mode="wait">
         <motion.div
           key={detectedCategory}
           initial={{ opacity: 0 }}
@@ -108,19 +116,26 @@ export default function FormatSelector({
             return (
               <motion.button
                 key={fmt}
-                initial={{ opacity: 0, scale: 0.85 }}
+                initial={{ opacity: 0, scale: 0.8, y: 4 }}
                 animate={{
                   opacity: 1,
                   scale: 1,
-                  transition: { delay: i * 0.02, duration: 0.2 },
+                  y: 0,
+                  transition: {
+                    delay: i * 0.018,
+                    duration: 0.22,
+                    type: "spring",
+                    stiffness: 400,
+                    damping: 22,
+                  },
                 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.06 }}
+                whileTap={{ scale: 0.94 }}
                 onClick={() => onChange(fmt)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-medium uppercase tracking-wide transition-colors ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
                   active
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                    ? "bg-primary text-primary-foreground dark:shadow-[0_0_14px_hsl(var(--primary)/0.35)]"
+                    : "dark:bg-white/[0.05] bg-muted text-muted-foreground hover:text-foreground dark:hover:bg-white/[0.09]"
                 }`}
               >
                 {fmt}

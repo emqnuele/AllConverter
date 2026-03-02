@@ -22,26 +22,26 @@
     --success-foreground: 0 0% 100%;
   }
 
+  /* ── True dark: near-pure black, electric cyan accent ── */
   .dark {
-    --background: 224 30% 5%;
-    --foreground: 210 40% 96%;
-    --muted: 218 28% 10%;
-    --muted-foreground: 218 14% 58%;
-    --border: 217 24% 14%;
-    --card: 224 28% 7%;
-    --card-foreground: 210 40% 96%;
-    --primary: 258 80% 68%;
-    --primary-foreground: 0 0% 100%;
-    --accent: 258 40% 14%;
-    --accent-foreground: 258 80% 78%;
-    --destructive: 0 72% 50%;
+    --background: 240 20% 2.5%;        /* #06060f — near black */
+    --foreground: 210 28% 93%;         /* cool near-white */
+    --muted: 240 16% 7%;               /* #0e0e17 */
+    --muted-foreground: 220 10% 46%;
+    --border: 240 14% 11%;             /* barely visible */
+    --card: 240 18% 4.5%;              /* glass base */
+    --card-foreground: 210 28% 93%;
+    --primary: 188 100% 48%;           /* #00c2ef electric cyan */
+    --primary-foreground: 240 20% 4%;  /* near-black on cyan */
+    --accent: 188 60% 9%;
+    --accent-foreground: 188 80% 68%;
+    --destructive: 0 68% 54%;
     --destructive-foreground: 0 0% 100%;
-    --success: 142 60% 42%;
+    --success: 142 58% 44%;
     --success-foreground: 0 0% 100%;
   }
 
   * {
-    @apply border-border;
     box-sizing: border-box;
   }
 
@@ -52,46 +52,125 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    transition: background-color 0.25s ease, color 0.25s ease;
+    transition: background-color 0.35s ease, color 0.25s ease;
   }
 }
 
-/* ── Scrollbar ──────────────────────────────────────────────────────────── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ── Glassmorphism ───────────────────────────────────────────────────────── */
+/* Light mode: regular card */
+.glass {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
 }
-::-webkit-scrollbar-track {
-  @apply bg-muted;
+
+/* Dark mode: frosted glass */
+html.dark .glass {
+  background: rgba(255, 255, 255, 0.028);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 40px rgba(0, 0, 0, 0.5);
 }
+
+.glass-strong {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: 1rem;
+}
+
+html.dark .glass-strong {
+  background: rgba(255, 255, 255, 0.042);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 12px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Scrollbar ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  @apply bg-border rounded-full;
+  background: rgba(120, 120, 140, 0.22);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 140, 0.42);
 }
 
-/* ── Focus ring ─────────────────────────────────────────────────────────── */
+/* ── Focus ring ──────────────────────────────────────────────────────────── */
 :focus-visible {
-  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+  @apply outline-none ring-1 ring-primary/50 ring-offset-1 ring-offset-background;
 }
 
-/* ── Selection ──────────────────────────────────────────────────────────── */
+/* ── Selection ───────────────────────────────────────────────────────────── */
 ::selection {
-  @apply bg-accent text-accent-foreground;
+  background: hsl(var(--primary) / 0.18);
+  color: hsl(var(--foreground));
 }
 
-/* ── Form controls ──────────────────────────────────────────────────────── */
+/* ── Form controls ───────────────────────────────────────────────────────── */
 @layer components {
   .input-field {
-    @apply w-full h-9 px-3 rounded-xl border border-border bg-background text-foreground text-sm
-           placeholder:text-muted-foreground/60
-           focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60
-           transition-colors;
+    @apply w-full h-9 px-3 rounded-xl border border-border bg-transparent text-foreground text-sm
+           placeholder:text-muted-foreground/50
+           focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40
+           transition-all duration-200;
   }
 
   select.input-field {
-    @apply cursor-pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    @apply cursor-pointer appearance-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     padding-right: 2rem;
   }
+}
+
+/* ── Range slider ────────────────────────────────────────────────────────── */
+input[type="range"] {
+  accent-color: hsl(var(--primary));
+  cursor: pointer;
+}
+
+/* ── Gradient text ───────────────────────────────────────────────────────── */
+.text-gradient {
+  background: linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--muted-foreground)) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .text-gradient {
+  background: linear-gradient(135deg, hsl(210 28% 93%) 0%, hsl(188 80% 72%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glow on primary button (dark only) ──────────────────────────────────── */
+html.dark .btn-primary-glow {
+  box-shadow: 0 0 22px rgba(0, 194, 239, 0.28);
+  transition: box-shadow 0.25s ease, opacity 0.15s ease;
+}
+html.dark .btn-primary-glow:hover:not(:disabled) {
+  box-shadow: 0 0 36px rgba(0, 194, 239, 0.45);
+}
+
+/* ── Noise grain overlay (dark mode only) ────────────────────────────────── */
+html.dark body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+  opacity: 0.028;
+  mix-blend-mode: overlay;
 }
