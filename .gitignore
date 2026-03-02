@@ -60,6 +60,14 @@ instance/
 .DS_Store
 Thumbs.db
 
-# Folders creati in fase di runtime
+# Runtime folders
 uploads/
 converted/
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Logs
+*.log

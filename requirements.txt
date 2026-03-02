@@ -1,20 +1,32 @@
-flask
+# ── Web framework ────────────────────────────────────────────────────────────
+fastapi
+uvicorn[standard]
+python-multipart
+aiofiles
+
+# ── Image processing ─────────────────────────────────────────────────────────
 pillow
 pillow-heif
+
+# ── Audio / Video ─────────────────────────────────────────────────────────────
+ffmpeg-python
+static-ffmpeg
+
+# ── Documents ────────────────────────────────────────────────────────────────
+PyPDF2>=3.0.0
+python-docx
+docx2pdf
+markdown
+html2text
+beautifulsoup4
+openpyxl
+python-pptx
+reportlab
+
+# ── Utilities ────────────────────────────────────────────────────────────────
 tqdm
-python-multipart
 werkzeug
-# pyheif  # Commentato per evitare la compilazione
-python-magic-bin; sys_platform == 'win32'  # Supporto Win/Mac per magic
-ffmpeg-python  # Per audio/video - wrapper API di FFmpeg
-PyPDF2>=3.0.0  # Per documenti PDF
-python-docx  # Per documenti Word
-docx2pdf  # Per conversione Word a PDF
-markdown  # Per conversione Markdown
-html2text  # Per conversione da HTML a text/markdown
-beautifulsoup4  # Per parsing HTML
-openpyxl  # Per documenti Excel
-python-pptx  # Per presentazioni PowerPoint
-gunicorn  # Production server
-static-ffmpeg  # FFmpeg binary for Render
-reportlab  # Pure Python PDF generation (fallback)
+python-magic-bin; sys_platform == "win32"
+
+# ── Production ───────────────────────────────────────────────────────────────
+gunicorn

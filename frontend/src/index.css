@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design tokens ──────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --background: 0 0% 98%;
+    --foreground: 224 30% 8%;
+    --muted: 220 16% 94%;
+    --muted-foreground: 220 10% 48%;
+    --border: 220 14% 88%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 30% 8%;
+    --primary: 258 80% 56%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 258 80% 96%;
+    --accent-foreground: 258 80% 40%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 224 30% 5%;
+    --foreground: 210 40% 96%;
+    --muted: 218 28% 10%;
+    --muted-foreground: 218 14% 58%;
+    --border: 217 24% 14%;
+    --card: 224 28% 7%;
+    --card-foreground: 210 40% 96%;
+    --primary: 258 80% 68%;
+    --primary-foreground: 0 0% 100%;
+    --accent: 258 40% 14%;
+    --accent-foreground: 258 80% 78%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 142 60% 42%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-muted;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+
+/* ── Focus ring ─────────────────────────────────────────────────────────── */
+:focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-background;
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────── */
+::selection {
+  @apply bg-accent text-accent-foreground;
+}
+
+/* ── Form controls ──────────────────────────────────────────────────────── */
+@layer components {
+  .input-field {
+    @apply w-full h-9 px-3 rounded-xl border border-border bg-background text-foreground text-sm
+           placeholder:text-muted-foreground/60
+           focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60
+           transition-colors;
+  }
+
+  select.input-field {
+    @apply cursor-pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 2rem;
+  }
+}
