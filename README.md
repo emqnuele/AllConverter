@@ -1,10 +1,10 @@
 # AllConverter
 
-This is a small experiment I built to test [Claude Code](https://claude.ai/code), an AI coding tool by Anthropic. This is really simple: throw a realistic project i did a long time a go at it and see how far it could take me.
+This is a small project i made a long time ago and now completely refactored to test [Claude Code](https://claude.ai/code), an AI coding tool by Anthropic. This is really simple: i threw a realistic project i did at it and see how far it could take me.
 
 AllConverter is a file converter for images, audio, video and documents. Nothing groundbreaking, just a good enough excuse to stress-test the tool. The UI was almost entirely designed and iterated through Claude Code, including the dark glassmorphism look, all the custom form controls, and the component architecture.
 
-It's not meant to be a product or anything production-grade. Take it as what it is, a dev experiment.
+It's not meant to be a product or anything production-grade. Take it as what it is, an experiment!
 
 *— ema*
 
