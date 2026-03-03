@@ -75,32 +75,27 @@ def create_app() -> FastAPI:
         openapi_url="/api/openapi.json",
     )
 
-    # Rate limiting (slowapi)
+    # rate limiting (slowapi)
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
-    # ------------------------------------------------------------------ #
-    #  Security: internal-only API protection                             #
-    #  Every /api/ request must carry X-Requested-With: <value>          #
-    #  (the frontend sends it automatically).  Requests originating from #
-    #  localhost are always allowed (health-checks, same-machine scripts).#
-    # ------------------------------------------------------------------ #
     @app.middleware("http")
     async def require_internal_header(request: Request, call_next):
         if settings.REQUIRE_INTERNAL_HEADER and request.url.path.startswith("/api/"):
+            # download endpoints are already protected by a signed download_token,
+            # so skip the internal-header check for direct browser link navigation.
+            is_download = request.url.path.startswith("/api/download")
             client_host = (request.client.host if request.client else "") or ""
             is_localhost = client_host in ("127.0.0.1", "::1", "localhost")
             sent_header = request.headers.get("X-Requested-With", "")
-            if not is_localhost and sent_header != settings.INTERNAL_HEADER_VALUE:
+            if not is_download and not is_localhost and sent_header != settings.INTERNAL_HEADER_VALUE:
                 return JSONResponse(
                     status_code=403,
                     content={"detail": "Forbidden: API is for internal use only"},
                 )
         return await call_next(request)
 
-    # ------------------------------------------------------------------ #
-    #  Security: HTTP response headers                                    #
-    # ------------------------------------------------------------------ #
+
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
         response = await call_next(request)
@@ -119,7 +114,6 @@ def create_app() -> FastAPI:
             "object-src 'none'; "
             "frame-ancestors 'none';"
         )
-        # Only add HSTS when the connection is already HTTPS
         if request.url.scheme == "https":
             response.headers["Strict-Transport-Security"] = (
                 "max-age=31536000; includeSubDomains"
@@ -129,7 +123,7 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=False,          # credentials + wildcard is spec-invalid; use explicit origins if you need cookies
+        allow_credentials=False,
         allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "X-Requested-With"],
     )
@@ -155,7 +149,6 @@ def _mount_frontend(app: FastAPI) -> None:
 
     @app.get("/{full_path:path}", include_in_schema=False)
     async def serve_spa(full_path: str):
-        # Resolve the candidate path and ensure it stays within dist
         candidate = (dist / full_path).resolve()
         dist_resolved = dist.resolve()
         try:

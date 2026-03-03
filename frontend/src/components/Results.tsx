@@ -85,7 +85,7 @@ export default function Results({ session, onConvertMore }: ResultsProps) {
               </div>
 
               {/* File info */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 overflow-hidden">
                 <p className="text-sm font-medium truncate">{r.output_filename}</p>
                 <p className="text-xs text-muted-foreground truncate">
                   {r.success
@@ -104,7 +104,7 @@ export default function Results({ session, onConvertMore }: ResultsProps) {
                   className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl dark:bg-white/[0.05] dark:hover:bg-white/[0.09] bg-muted hover:bg-accent text-muted-foreground hover:text-foreground text-xs font-medium transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  Download
+                  <span className="hidden sm:inline">Download</span>
                 </motion.a>
               )}
             </motion.div>
