@@ -4,7 +4,7 @@ export default function Footer() {
   const links = [
     {
       label: "GitHub",
-      href: "https://github.com/emqnuele",
+      href: "https://github.com/emqnuele/AllConverter",
       icon: Github,
     },
     {
@@ -41,7 +41,7 @@ export default function Footer() {
         </div>
 
         <p className="text-[11px] text-muted-foreground/60 mt-6">
-          Built with React, Vite & Framer Motion
+          Built as an experiment.
         </p>
       </div>
     </footer>
