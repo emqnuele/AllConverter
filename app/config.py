@@ -1,7 +1,5 @@
 from __future__ import annotations
 from pathlib import Path
-from typing import List
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _BASE_DIR = Path(__file__).resolve().parents[1]
@@ -28,7 +26,7 @@ class Settings(BaseSettings):
     SESSION_TTL_HOURS: float = 6.0
     CLEANUP_INTERVAL_SECONDS: float = 3600.0
 
-    CORS_ORIGINS: List[str] = []
+    CORS_ORIGINS: str = ""
     TRUST_PROXY_HEADERS: bool = False
     # internal-only API protection.
     # when True, every /api/ request must carry the header.
@@ -43,14 +41,5 @@ class Settings(BaseSettings):
     # ffmpeg
     # set USE_STATIC_FFMPEG=false in .env to manage ffmpeg yourself
     USE_STATIC_FFMPEG: bool = True
-
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def _parse_cors(cls, v: object) -> object:
-        """Allow CORS_ORIGINS to be set as a single comma-separated string."""
-        if isinstance(v, str):
-            return [origin.strip() for origin in v.split(",") if origin.strip()]
-        return v
-
 
 settings = Settings()
