@@ -124,7 +124,7 @@ def create_app() -> FastAPI:
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
         allow_credentials=False,
-        allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+        allow_methods=["GET", "HEAD", "POST", "DELETE", "OPTIONS"],
         allow_headers=["Content-Type", "X-Requested-With"],
     )
 
@@ -132,6 +132,10 @@ def create_app() -> FastAPI:
     app.include_router(formats_router, prefix=prefix, tags=["Formats"])
     app.include_router(convert_router, prefix=prefix, tags=["Convert"])
     app.include_router(download_router, prefix=prefix, tags=["Download"])
+
+    @app.api_route("/health", methods=["GET", "HEAD"], include_in_schema=False)
+    async def health():
+        return JSONResponse({"status": "ok"})
 
     _mount_frontend(app)
     return app
